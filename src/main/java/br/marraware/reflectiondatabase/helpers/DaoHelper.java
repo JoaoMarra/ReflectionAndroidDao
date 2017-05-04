@@ -15,6 +15,8 @@ public class DaoHelper {
     private static final DateFormat DATE_FORMATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     public static String dateToString(Date date) {
+        if(date == null)
+            return null;
         return DATE_FORMATE.format(date);
     }
     public static Date stringToDate(String dataStr){

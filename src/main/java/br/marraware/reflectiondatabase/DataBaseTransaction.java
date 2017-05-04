@@ -27,7 +27,6 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
     }
 
     private InternTransactionCallBack callBack;
-    private String errorMessage;
     private TRANSACTION_METHOD method;
     private DataBaseQueryBuilder queryBuilder;
 
@@ -36,26 +35,12 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
         this.callBack = callBack;
     }
 
-    public DataBaseTransaction(TRANSACTION_METHOD method,InternTransactionCallBack callBack, String errorMessage) {
-        this.method = method;
-        this.callBack = callBack;
-        this.errorMessage = errorMessage;
-    }
-
     public DataBaseQueryBuilder getQueryBuilder() {
         return queryBuilder;
     }
 
     public void setQueryBuilder(DataBaseQueryBuilder queryBuilder) {
         this.queryBuilder = queryBuilder;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     @Override
@@ -92,18 +77,13 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
     @Override
     protected void onPostExecute(Cursor cursor) {
         if(callBack != null) {
-            if(cursor != null)
-                callBack.onBack(cursor);
-            else
-                callBack.onFailure(errorMessage);
+            callBack.onBack(cursor);
         }
     }
 
     public interface InternTransactionCallBack {
 
         void onBack(Cursor cursor);
-
-        void onFailure(String errorMessage);
     }
 
     public class EmptyCursor implements Cursor {

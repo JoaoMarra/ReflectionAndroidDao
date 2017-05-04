@@ -12,6 +12,4 @@ import br.marraware.reflectiondatabase.model.DaoAbstractModel;
 public interface DataBaseTransactionCallBack {
 
     void onBack(ArrayList<DaoAbstractModel> models);
-
-    void onFailure(String errorMessage);
 }

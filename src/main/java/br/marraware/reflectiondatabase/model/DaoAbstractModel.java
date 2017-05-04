@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -32,7 +33,6 @@ public abstract class DaoAbstractModel {
     public abstract Object identifierValue();
 
     public DaoAbstractModel() {
-
     }
 
     public DaoAbstractModel(JSONObject json) throws JSONException, IllegalAccessException {
@@ -86,13 +86,10 @@ public abstract class DaoAbstractModel {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.SAVE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
-                callBack.onBack(models);
+                if(callBack != null)
+                    callBack.onBack(models);
             }
 
-            @Override
-            public void onFailure(String errorMessage) {
-                callBack.onFailure(errorMessage);
-            }
         });
         transaction.execute((DaoAbstractModel[]) models.toArray());
     }
@@ -105,28 +102,26 @@ public abstract class DaoAbstractModel {
         try {
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
-                if(fields[i].get(this) != null) {
-                    if (type.isInstance(new String())) {
-                        values.put(fields[i].getName(), (String) fields[i].get(this));
-                    } else if (type.isInstance(new Integer(0))) {
-                        values.put(fields[i].getName(), (Integer) fields[i].get(this));
-                    } else if (type.isInstance(new Float(0))) {
-                        values.put(fields[i].getName(), (Float) fields[i].get(this));
-                    } else if (type.isInstance(new Double(0))) {
-                        values.put(fields[i].getName(), (Double) fields[i].get(this));
-                    } else if (type.isInstance(new Long(0))) {
-                        values.put(fields[i].getName(), (Long) fields[i].get(this));
-                    } else if (type.isInstance(new Boolean(true))) {
-                        if (fields[i].getBoolean(this))
-                            values.put(fields[i].getName(), 1);
-                        else
-                            values.put(fields[i].getName(), 0);
-                    } else if (type.isInstance(new Date())) {
-                        values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
-                    }
+                if (type.isInstance(new String())) {
+                    values.put(fields[i].getName(), (String) fields[i].get(this));
+                } else if (type.isInstance(new Integer(0))) {
+                    values.put(fields[i].getName(), (Integer) fields[i].get(this));
+                } else if (type.isInstance(new Float(0))) {
+                    values.put(fields[i].getName(), (Float) fields[i].get(this));
+                } else if (type.isInstance(new Double(0))) {
+                    values.put(fields[i].getName(), (Double) fields[i].get(this));
+                } else if (type.isInstance(new Long(0))) {
+                    values.put(fields[i].getName(), (Long) fields[i].get(this));
+                } else if (type.isInstance(new Boolean(true))) {
+                    if (fields[i].getBoolean(this))
+                        values.put(fields[i].getName(), 1);
+                    else
+                        values.put(fields[i].getName(), 0);
+                } else if (type.isInstance(new Date())) {
+                    values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
                 }
             }
-            long id = db.insertWithOnConflict(abstractTableName(tableName()), null, values,CONFLICT_REPLACE);
+            db.insertWithOnConflict(abstractTableName(tableName()), null, values,CONFLICT_REPLACE);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -136,12 +131,8 @@ public abstract class DaoAbstractModel {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.DELETE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
-                callBack.onBack(models);
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                callBack.onFailure(errorMessage);
+                if(callBack != null)
+                    callBack.onBack(models);
             }
         });
         transaction.execute((DaoAbstractModel[]) models.toArray());
@@ -157,30 +148,25 @@ public abstract class DaoAbstractModel {
     }
 
     public void get(DataBaseQueryBuilder queryBuilder, final DataBaseTransactionCallBack callBack) {
-        ArrayList list = new ArrayList();
         queryBuilder.setTableName(abstractTableName(tableName()));
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.GET, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
-                ArrayList models = new ArrayList();
-                try {
-                    Constructor constructor = DaoAbstractModel.this.getClass().getConstructor(SQLiteCursor.class);
-                    if(cursor.moveToFirst()) {
-                        while ( ! cursor.isAfterLast()) {
-                            models.add(constructor.newInstance(cursor));
-                            cursor.moveToNext();
+                if(callBack != null) {
+                    ArrayList models = new ArrayList();
+                    try {
+                        Constructor constructor = DaoAbstractModel.this.getClass().getConstructor(SQLiteCursor.class);
+                        if (cursor.moveToFirst()) {
+                            while (!cursor.isAfterLast()) {
+                                models.add(constructor.newInstance(cursor));
+                                cursor.moveToNext();
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    callBack.onBack(models);
                 }
-
-                callBack.onBack(models);
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                callBack.onFailure(errorMessage);
             }
         });
         transaction.setQueryBuilder(queryBuilder);
@@ -192,6 +178,7 @@ public abstract class DaoAbstractModel {
         ContentValues values = new ContentValues();
         Field[] fields = getFields();
         Class type;
+        String dateString;
         try {
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
@@ -211,7 +198,11 @@ public abstract class DaoAbstractModel {
                     else
                         values.put(fields[i].getName(),0);
                 }  else if(type.isInstance(new Date())) {
-                    values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
+                    dateString = DaoHelper.dateToString((Date) fields[i].get(this));
+                    if(dateString !=  null)
+                        values.put(fields[i].getName(), dateString);
+                    else
+                        values.putNull(fields[i].getName());
                 }
             }
             Object identifier = identifierValue();
@@ -223,12 +214,8 @@ public abstract class DaoAbstractModel {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.UPDATE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
-                callBack.onBack(models);
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                callBack.onFailure(errorMessage);
+                if(callBack != null)
+                    callBack.onBack(models);
             }
         });
         transaction.execute((DaoAbstractModel[]) models.toArray());
