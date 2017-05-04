@@ -71,9 +71,9 @@ public enum QUERY_ITEM_TYPE {
         LIKE,
         NOT_LIKE,
         CONTAINS,
-        MORE_THEN,
+        MORE_THAN,
         MORE_EQUAL,
-        LESS_THEN,
+        LESS_THAN,
         LESS_EQUAL
     }
 ```
