@@ -25,9 +25,9 @@ public class DataBaseQueryBuilder {
         LIKE("LIKE"),
         NOT_LIKE("NOT LIKE"),
         CONTAINS("CONTAINS"),
-        MORE_THEN(">"),
+        MORE_THAN(">"),
         MORE_EQUAL(">="),
-        LESS_THEN("<"),
+        LESS_THAN("<"),
         LESS_EQUAL("<=");
 
         private String name;
