@@ -62,7 +62,7 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
     protected Cursor doInBackground(DaoAbstractModel... daoAbstractModels) {
         if(method == GET) {
             Cursor cursor = null;
-            SQLiteDatabase db = DataBaseHelper.db();
+            SQLiteDatabase db = ReflectionDatabaseManager.db();
             String rawQuery;
             if(queryBuilder != null) {
                 String query = queryBuilder.getQuery();

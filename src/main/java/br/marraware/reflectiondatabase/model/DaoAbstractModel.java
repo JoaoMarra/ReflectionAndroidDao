@@ -14,10 +14,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 
-import br.marraware.reflectiondatabase.DataBaseHelper;
 import br.marraware.reflectiondatabase.DataBaseQueryBuilder;
 import br.marraware.reflectiondatabase.DataBaseTransaction;
 import br.marraware.reflectiondatabase.DataBaseTransactionCallBack;
+import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
@@ -98,34 +98,38 @@ public abstract class DaoAbstractModel {
     }
 
     public void save() {
-        SQLiteDatabase db = DataBaseHelper.db();
+        SQLiteDatabase db = ReflectionDatabaseManager.db();
         ContentValues values = new ContentValues();
         Field[] fields = getFields();
         Class type;
         try {
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
-                if(type.isInstance(new String())) {
-                    values.put(fields[i].getName(), (String) fields[i].get(this));
-                } else if(type.isInstance(new Integer(0))) {
-                    values.put(fields[i].getName(), (Integer) fields[i].get(this));
-                } else if(type.isInstance(new Float(0))) {
-                    values.put(fields[i].getName(), (Float) fields[i].get(this));
-                } else if(type.isInstance(new Double(0))) {
-                    values.put(fields[i].getName(), (Double) fields[i].get(this));
-                } else if(type.isInstance(new Long(0))) {
-                    values.put(fields[i].getName(), (Long) fields[i].get(this));
-                } else if(type.isInstance(new Boolean(true))) {
-                    if(fields[i].getBoolean(this))
-                        values.put(fields[i].getName(),1);
-                    else
-                        values.put(fields[i].getName(),0);
-                }  else if(type.isInstance(new Date())) {
-                    values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
+                if(fields[i].get(this) != null) {
+                    if (type.isInstance(new String())) {
+                        values.put(fields[i].getName(), (String) fields[i].get(this));
+                    } else if (type.isInstance(new Integer(0))) {
+                        values.put(fields[i].getName(), (Integer) fields[i].get(this));
+                    } else if (type.isInstance(new Float(0))) {
+                        values.put(fields[i].getName(), (Float) fields[i].get(this));
+                    } else if (type.isInstance(new Double(0))) {
+                        values.put(fields[i].getName(), (Double) fields[i].get(this));
+                    } else if (type.isInstance(new Long(0))) {
+                        values.put(fields[i].getName(), (Long) fields[i].get(this));
+                    } else if (type.isInstance(new Boolean(true))) {
+                        if (fields[i].getBoolean(this))
+                            values.put(fields[i].getName(), 1);
+                        else
+                            values.put(fields[i].getName(), 0);
+                    } else if (type.isInstance(new Date())) {
+                        values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
+                    }
                 }
             }
-            db.insertWithOnConflict(abstractTableName(tableName()), null, values,CONFLICT_REPLACE);
-        } catch (Exception e){}
+            long id = db.insertWithOnConflict(abstractTableName(tableName()), null, values,CONFLICT_REPLACE);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static void deleteAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
@@ -144,7 +148,7 @@ public abstract class DaoAbstractModel {
     }
 
     public void delete() {
-        SQLiteDatabase db = DataBaseHelper.db();
+        SQLiteDatabase db = ReflectionDatabaseManager.db();
         db.delete(abstractTableName(tableName()), identifierColumn()+"=?",new String[]{""+identifierValue()});
     }
 
@@ -184,7 +188,7 @@ public abstract class DaoAbstractModel {
     }
 
     public void update() {
-        SQLiteDatabase db = DataBaseHelper.db();
+        SQLiteDatabase db = ReflectionDatabaseManager.db();
         ContentValues values = new ContentValues();
         Field[] fields = getFields();
         Class type;
