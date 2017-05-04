@@ -12,6 +12,15 @@ public class DaoModel extends DaoAbstractModel {
     public Integer var1;//need to be object not primitive
     public String var2;
 
+//THESE CONSTRUCTORS ARE IMPORTANT!!!!
+    public DaoModel() {
+        super();
+    }
+
+    public DaoModel(SQLiteCursor cursor) {
+        super(cursor);
+    }
+//
     @Override
     public String identifierColumn() {
         return "var1";//need to be the same name as the identifier variable
