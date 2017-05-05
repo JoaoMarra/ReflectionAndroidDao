@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
 
@@ -85,37 +86,37 @@ public final class ReflectionDatabaseQuery {
         }
     }
 
-    public static void saveAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
+    public static void saveAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.SAVE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
-                    callBack.onBack(models);
+                    callBack.onBack(new ArrayList<DaoAbstractModel>(Arrays.asList(models)));
             }
 
         });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
+        transaction.execute(models);
     }
 
-    public static void deleteAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
+    public static void deleteAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.DELETE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
-                    callBack.onBack(models);
+                    callBack.onBack(new ArrayList<DaoAbstractModel>(Arrays.asList(models)));
             }
         });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
+        transaction.execute(models);
     }
 
-    public static void updateAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
+    public static void updateAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
         DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.UPDATE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
-                    callBack.onBack(models);
+                    callBack.onBack(new ArrayList<DaoAbstractModel>(Arrays.asList(models)));
             }
         });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
+        transaction.execute(models);
     }
 }
