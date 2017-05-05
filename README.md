@@ -12,13 +12,9 @@ public class DaoModel extends DaoAbstractModel {
     public Integer var1;//need to be object not primitive
     public String var2;
 
-//THESE CONSTRUCTORS ARE IMPORTANT!!!!
+//THIS CONSTRUCTOR IS IMPORTANT!!!!, YOU MAY NOT INCLUDE IT BUT YOU CAN`T HAVE OTHER CONSTRUCTOR WITHOUT THIS
     public DaoModel() {
         super();
-    }
-
-    public DaoModel(SQLiteCursor cursor) {
-        super(cursor);
     }
 //
     @Override
@@ -41,26 +37,31 @@ On your Application class add to the onCreate() method:
 ```
 ReflectionDatabaseManager.initDataBase(//instance of SQLiteOpenHelper);
 ```
-Finally you can call the methods createTable(SQLiteDatabase) and dropTable(SQLiteDatabase) from your models instance to
-create and drop your tables when needed.
+Finally on your SQLiteOpenHelper class, you can use these example to create and drop your tables:
+
+```
+@Override
+    public void onCreate(SQLiteDatabase db) {
+        ReflectionDatabaseManager.createTable(DaoModel.class,db);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        ReflectionDatabaseManager.dropTable(DaoModel.class,db);
+        onCreate(db);
+    }
+```
 
 # Select Build
 
-You can perform an select query using the DataBaseQueryBuilder class like in this examples below:
+You can perform get and getAsync methods from `ReflectionDatabaseQuery` class like in this example:
 
 Here we want to find the `Person` with `Name` equals `Robert`
 ```
     DataBaseQueryBuilder builder = new DataBaseQueryBuilder().
     where("Name", "Robert", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL);
     
-    new DaoPerson().get(builder, new DataBaseTransactionCallBack() {
-                @Override
-                public void onBack(ArrayList<DaoAbstractModel> models) {
-                    if(models.size() > 0) {
-                        models.get(0) <- this is it
-                    }
-                }
-            });
+    DaoPerson person = (DaoPerson) ReflectionDatabaseQuery.get(DaoPerson.class,builder);
 ```
 
 You can use these comparation enum:
@@ -78,7 +79,7 @@ public enum QUERY_ITEM_TYPE {
     }
 ```
 
-Now we want to find every `Person` with `Name` like `Robin` or `Vanessa` with age of 16
+Now we want to find every `Person` with `Name` like `Robin` or `Vanessa` with age of 16, for this we\`ll need to use getAsync
 ```
     DataBaseQueryBuilder builder = new DataBaseQueryBuilder().
     where("Age", "16", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL);
@@ -86,12 +87,12 @@ Now we want to find every `Person` with `Name` like `Robin` or `Vanessa` with ag
                     new DataBaseQueryBuilder.QueryTreeNode("Name","Robin", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL),
                     new DataBaseQueryBuilder.QueryTreeNode("Name","Vanessa", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL));
     
-    new DaoPerson().get(builder, new DataBaseTransactionCallBack() {
-                @Override
-                public void onBack(ArrayList<DaoAbstractModel> models) {
-                    //compute your data
-                }
-            });
+    ReflectionDatabaseQuery.getAsync(DaoPerson.class, builder, new DataBaseTransactionCallBack() {
+            @Override
+            public void onBack(ArrayList<DaoAbstractModel> models) {
+                //compute your data
+            }
+        });
 ```
 Here we used `QueryTreeNode` to create an exclusive where clause with `OR` connection.
 
@@ -109,4 +110,4 @@ Every DaoAbstractModel extended class has methods to `save()`, `update()` and `d
     
     person.delete(); <- delete data from base
 ```
-You can call `saveAll(ArrayList,DataBaseTransactionCallBack)`, `updateAll(ArrayList,DataBaseTransactionCallBack)` and `delete(ArrayList,DataBaseTransactionCallBack)` to modify simutalneous data. Not that this methods (the \`all\` methods) happen async, use `DataBaseTransactionCallBack` interface to know when it\`s finished.
+You can use `ReflectionDatabaseQuery` to call `saveAll(DataBaseTransactionCallBack, DaoAbstractModel...)`, `updateAll(DataBaseTransactionCallBack, DaoAbstractModel...)` and `deleteAll(DataBaseTransactionCallBack, DaoAbstractModel...)` to modify simutalneous data. Not that these methods happen async, use `DataBaseTransactionCallBack` interface to know when it\`s finished.
