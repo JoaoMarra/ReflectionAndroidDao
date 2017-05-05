@@ -20,6 +20,8 @@ public class DaoHelper {
         return DATE_FORMATE.format(date);
     }
     public static Date stringToDate(String dataStr){
+        if(dataStr == null)
+            return null;
         try {
             return DATE_FORMATE.parse(dataStr);
         }catch (ParseException e){}

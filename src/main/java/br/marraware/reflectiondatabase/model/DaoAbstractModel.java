@@ -32,8 +32,7 @@ public abstract class DaoAbstractModel {
     public abstract String identifierColumn();
     public abstract Object identifierValue();
 
-    public DaoAbstractModel() {
-    }
+    public DaoAbstractModel() {}
 
     public DaoAbstractModel(JSONObject json) throws JSONException, IllegalAccessException {
         Field[] fields = getFields();
