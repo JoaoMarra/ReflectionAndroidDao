@@ -46,7 +46,7 @@ public abstract class DaoAbstractModel {
         }
     }
 
-    public DaoAbstractModel(SQLiteCursor cursor) {
+    public final void configureWithCursor(Cursor cursor) {
         Field[] fields = getFields();
         Class type;
         try {
@@ -82,18 +82,6 @@ public abstract class DaoAbstractModel {
         return c.getDeclaredFields();
     }
 
-    public static void saveAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.SAVE, new DataBaseTransaction.InternTransactionCallBack() {
-            @Override
-            public void onBack(Cursor cursor) {
-                if(callBack != null)
-                    callBack.onBack(models);
-            }
-
-        });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
-    }
-
     public void save() {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
         ContentValues values = new ContentValues();
@@ -121,56 +109,15 @@ public abstract class DaoAbstractModel {
                     values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
                 }
             }
-            db.insertWithOnConflict(abstractTableName(tableName()), null, values,CONFLICT_REPLACE);
+            db.insertWithOnConflict(tableName(this.getClass()), null, values,CONFLICT_REPLACE);
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public static void deleteAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.DELETE, new DataBaseTransaction.InternTransactionCallBack() {
-            @Override
-            public void onBack(Cursor cursor) {
-                if(callBack != null)
-                    callBack.onBack(models);
-            }
-        });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
-    }
-
     public void delete() {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
-        db.delete(abstractTableName(tableName()), identifierColumn()+"=?",new String[]{""+identifierValue()});
-    }
-
-    public void get(DataBaseTransactionCallBack callBack) {
-        get(new DataBaseQueryBuilder(), callBack);
-    }
-
-    public void get(DataBaseQueryBuilder queryBuilder, final DataBaseTransactionCallBack callBack) {
-        queryBuilder.setTableName(abstractTableName(tableName()));
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.GET, new DataBaseTransaction.InternTransactionCallBack() {
-            @Override
-            public void onBack(Cursor cursor) {
-                if(callBack != null) {
-                    ArrayList models = new ArrayList();
-                    try {
-                        Constructor constructor = DaoAbstractModel.this.getClass().getConstructor(SQLiteCursor.class);
-                        if (cursor.moveToFirst()) {
-                            while (!cursor.isAfterLast()) {
-                                models.add(constructor.newInstance(cursor));
-                                cursor.moveToNext();
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    callBack.onBack(models);
-                }
-            }
-        });
-        transaction.setQueryBuilder(queryBuilder);
-        transaction.execute();
+        db.delete(tableName(this.getClass()), identifierColumn()+"=?",new String[]{""+identifierValue()});
     }
 
     public void update() {
@@ -206,75 +153,17 @@ public abstract class DaoAbstractModel {
                 }
             }
             Object identifier = identifierValue();
-            db.update(abstractTableName(tableName()),values, identifierColumn()+"=?", new String[]{""+identifier});
+            db.update(tableName(this.getClass()),values, identifierColumn()+"=?", new String[]{""+identifier});
         } catch (Exception e){}
     }
 
-    public static void updateAll(final ArrayList<DaoAbstractModel> models, final DataBaseTransactionCallBack callBack) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.UPDATE, new DataBaseTransaction.InternTransactionCallBack() {
-            @Override
-            public void onBack(Cursor cursor) {
-                if(callBack != null)
-                    callBack.onBack(models);
-            }
-        });
-        transaction.execute((DaoAbstractModel[]) models.toArray());
+    public int rowCount() {
+        SQLiteDatabase db = ReflectionDatabaseManager.db();
+        Cursor cursor = db.rawQuery("select * from "+tableName(this.getClass()), null);
+        return cursor.getCount();
     }
 
-    public abstract String tableName();
-
-    private final static String abstractTableName(String tableName) {
-        return tableName+"DAO";
-    }
-
-    public final void createTable(SQLiteDatabase db) {
-        Field[] fields = getFields();
-        StringBuilder builder = new StringBuilder();
-        builder.append("CREATE TABLE IF NOT EXISTS ");
-        builder.append(abstractTableName(tableName())+"(");
-        Class type;
-        String name, typeString;
-        try {
-            for (int i = 0; i < fields.length; i++) {
-                name = fields[i].getName();
-                type = fields[i].getType();
-                typeString = null;
-                if(type.isInstance(new String())) {
-                    typeString = "varchar(255)";
-                }
-                else if(type.isInstance(new Integer(0))) {
-                    typeString = "int";
-                } else if(type.isInstance(new Float(0))) {
-                    typeString = "double";
-                } else if(type.isInstance(new Double(0))) {
-                    typeString = "double";
-                } else if(type.isInstance(new Long(0))) {
-                    typeString = "bigint";
-                } else if(type.isInstance(new Boolean(true))) {
-                    typeString = "int";
-                } else if(type.isInstance(new Date())) {
-                    typeString = "datetime";
-                }
-                if(name.compareTo(identifierColumn()) == 0) {
-                    typeString += " primary key";
-                }
-                if(typeString != null)
-                    builder.append(name+" "+typeString+(i == fields.length-1?")":","));
-            }
-        } catch (Exception e){
-            String exec = builder.toString();
-            Log.d(tableName(),"ErrorCreateTable:\n"+exec);
-        }
-        finally {
-            String exec = builder.toString();
-            if(exec.charAt(exec.length()-1) == ',')
-                exec = exec.substring(0,exec.length()-1)+")";
-            Log.d(tableName(),"DaoCreateTable:\n"+exec);
-            db.execSQL(exec);
-        }
-
-    }
-    public final void dropTable(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS "+abstractTableName(tableName()));
+    public final static String tableName(Class c) {
+        return c.getSimpleName();
     }
 }
