@@ -98,6 +98,24 @@ public final class ReflectionDatabaseQuery {
         transaction.execute(models);
     }
 
+    public static int delete(final Class<? extends DaoAbstractModel> modelClass, DataBaseQueryBuilder queryBuilder) {
+        try {
+            Constructor constructor = modelClass.getConstructor();
+            DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
+            SQLiteDatabase db = ReflectionDatabaseManager.db();
+            String rawQuery;
+            queryBuilder.setTableName(model.tableName(modelClass));
+            String where = queryBuilder.getWhereString();
+            Log.d("DataBaseTransaction", "DELETE - where " + where);
+            int rowCount = db.delete(queryBuilder.getTableName(), where, null);
+
+            return rowCount;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static void deleteAsync(final Class<? extends DaoAbstractModel> modelClass, DataBaseQueryBuilder queryBuilder, final DataBaseTransactionQuantityCallBack callBack) {
         try {
             Constructor constructor = modelClass.getConstructor();
