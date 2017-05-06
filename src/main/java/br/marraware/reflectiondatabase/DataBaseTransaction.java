@@ -11,20 +11,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
+import br.marraware.reflectiondatabase.model.TRANSACTION_METHOD;
 
-import static br.marraware.reflectiondatabase.DataBaseTransaction.TRANSACTION_METHOD.*;
+import static br.marraware.reflectiondatabase.model.TRANSACTION_METHOD.*;
+
 
 /**
  * Created by joao_gabriel on 02/05/17.
  */
 
 public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Cursor> {
-
-    public enum TRANSACTION_METHOD {
-        SAVE,DELETE,UPDATE,GET
-    }
 
     private InternTransactionCallBack callBack;
     private TRANSACTION_METHOD method;
@@ -45,17 +42,19 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
 
     @Override
     protected Cursor doInBackground(DaoAbstractModel... daoAbstractModels) {
-        if(method == GET) {
-            Cursor cursor = null;
-            SQLiteDatabase db = ReflectionDatabaseManager.db();
-            String rawQuery;
-            if(queryBuilder != null) {
-                String query = queryBuilder.getQuery();
-                rawQuery = "select * from "+queryBuilder.getTableName()+query;
-                Log.d("DataBaseTransaction","GET - "+rawQuery);
-                cursor = db.rawQuery(rawQuery, null);
+        if(queryBuilder != null) {
+            if(method == GET) {
+                Cursor cursor = null;
+                SQLiteDatabase db = ReflectionDatabaseManager.db();
+                String rawQuery;
+                if(queryBuilder != null) {
+                    String query = queryBuilder.getQuery();
+                    rawQuery = "select * from "+queryBuilder.getTableName()+query;
+                    Log.d("DataBaseTransaction","GET - "+rawQuery);
+                    cursor = db.rawQuery(rawQuery, null);
+                }
+                return cursor;
             }
-            return cursor;
         } else {
             for (DaoAbstractModel model : daoAbstractModels) {
                 switch (method) {
@@ -70,8 +69,8 @@ public class DataBaseTransaction extends AsyncTask<DaoAbstractModel,Integer,Curs
                         break;
                 }
             }
-            return new EmptyCursor();
         }
+        return new EmptyCursor();
     }
 
     @Override

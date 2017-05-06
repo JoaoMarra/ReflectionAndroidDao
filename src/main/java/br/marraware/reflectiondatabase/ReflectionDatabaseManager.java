@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Date;
 
+import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
 
 /**
@@ -71,7 +72,7 @@ public final class ReflectionDatabaseManager{
                 } else if(type.isInstance(new Boolean(true))) {
                     typeString = "int";
                 } else if(type.isInstance(new Date())) {
-                    typeString = "datetime";
+                    typeString = "varchar("+DaoHelper.DATE_FORMATE_STRING.length()+")";
                 }
                 if(name.compareTo(model.identifierColumn()) == 0) {
                     typeString += " primary key";

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
+import br.marraware.reflectiondatabase.model.TRANSACTION_METHOD;
 
 /**
  * Created by joao_gabriel on 05/05/17.
@@ -55,7 +56,7 @@ public final class ReflectionDatabaseQuery {
             Constructor constructor = modelClass.getConstructor();
             DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
             queryBuilder.setTableName(model.tableName(modelClass));
-            DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.GET, new DataBaseTransaction.InternTransactionCallBack() {
+            DataBaseTransaction transaction = new DataBaseTransaction(TRANSACTION_METHOD.GET, new DataBaseTransaction.InternTransactionCallBack() {
                 @Override
                 public void onBack(Cursor cursor) {
                     if (callBack != null) {
@@ -74,8 +75,7 @@ public final class ReflectionDatabaseQuery {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        if(callBack != null)
-                            callBack.onBack(models);
+                        callBack.onBack(models);
                     }
                 }
             });
@@ -87,7 +87,7 @@ public final class ReflectionDatabaseQuery {
     }
 
     public static void saveAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.SAVE, new DataBaseTransaction.InternTransactionCallBack() {
+        DataBaseTransaction transaction = new DataBaseTransaction(TRANSACTION_METHOD.SAVE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
@@ -98,8 +98,28 @@ public final class ReflectionDatabaseQuery {
         transaction.execute(models);
     }
 
+    public static void deleteAsync(final Class<? extends DaoAbstractModel> modelClass, DataBaseQueryBuilder queryBuilder, final DataBaseTransactionQuantityCallBack callBack) {
+        try {
+            Constructor constructor = modelClass.getConstructor();
+            DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
+            queryBuilder.setTableName(model.tableName(modelClass));
+            DataBaseTransactionQuantity transaction = new DataBaseTransactionQuantity(TRANSACTION_METHOD.DELETE, new DataBaseTransactionQuantity.InternTransactionQuantityCallBack() {
+                @Override
+                public void onBack(int rowCount) {
+                    if (callBack != null) {
+                        callBack.onBack(rowCount);
+                    }
+                }
+            });
+            transaction.setQueryBuilder(queryBuilder);
+            transaction.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void deleteAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.DELETE, new DataBaseTransaction.InternTransactionCallBack() {
+        DataBaseTransaction transaction = new DataBaseTransaction(TRANSACTION_METHOD.DELETE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
@@ -110,7 +130,7 @@ public final class ReflectionDatabaseQuery {
     }
 
     public static void updateAll(final DataBaseTransactionCallBack callBack,final DaoAbstractModel... models) {
-        DataBaseTransaction transaction = new DataBaseTransaction(DataBaseTransaction.TRANSACTION_METHOD.UPDATE, new DataBaseTransaction.InternTransactionCallBack() {
+        DataBaseTransaction transaction = new DataBaseTransaction(TRANSACTION_METHOD.UPDATE, new DataBaseTransaction.InternTransactionCallBack() {
             @Override
             public void onBack(Cursor cursor) {
                 if(callBack != null)
@@ -118,5 +138,14 @@ public final class ReflectionDatabaseQuery {
             }
         });
         transaction.execute(models);
+    }
+
+    public static boolean clearTable(final Class<? extends DaoAbstractModel> modelClass) {
+        SQLiteDatabase db = ReflectionDatabaseManager.db();
+
+        int rows = db.delete(DaoAbstractModel.tableName(modelClass),"1",null);
+        if(rows > 0)
+            return true;
+        return false;
     }
 }

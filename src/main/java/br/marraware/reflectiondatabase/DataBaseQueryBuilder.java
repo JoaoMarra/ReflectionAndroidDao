@@ -145,13 +145,10 @@ public class DataBaseQueryBuilder {
         return this;
     }
 
-    public String getQuery() {
+    public String getWhereString() {
         StringBuilder builder = new StringBuilder();
         QueryItem item;
         QueryTree tree;
-        if(items.size() > 0) {
-            builder.append(" where");
-        }
         QueryPart part;
         for(int i = 0; i < items.size(); i++) {
             part = items.get(i);
@@ -164,6 +161,14 @@ public class DataBaseQueryBuilder {
             }
             if(i < items.size()-1)
                 builder.append(" AND");
+        }
+        return builder.toString();
+    }
+
+    public String getQuery() {
+        StringBuilder builder = new StringBuilder();
+        if(items.size() > 0) {
+            builder.append(" where"+getWhereString());
         }
         if(orderBy != null) {
             builder.append(" order by "+orderBy);

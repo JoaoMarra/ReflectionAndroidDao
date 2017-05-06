@@ -45,7 +45,7 @@ public abstract class DaoAbstractModel {
         }
     }
 
-    public final void configureWithCursor(Cursor cursor) {
+    public void configureWithCursor(Cursor cursor) {
         Field[] fields = getFields();
         Class type;
         try {
