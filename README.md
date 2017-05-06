@@ -26,11 +26,6 @@ public class DaoModel extends DaoAbstractModel {
     public Object identifierValue() {
         return var1;
     }
-
-    @Override
-    public String tableName() {
-        return "Model";
-    }
 }
 ```
 On your Application class add to the onCreate() method:
