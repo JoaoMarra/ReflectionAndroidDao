@@ -9,6 +9,7 @@ Each of your DaoModels need to be as the one above:
 ```
 public class DaoModel extends DaoAbstractModel {
 
+    @PrimaryKey <- this annotation indicates the primary key, you could not declare any so the DAO will use an default Long
     public Integer var1;//need to be object not primitive
     public String var2;
 
@@ -17,15 +18,6 @@ public class DaoModel extends DaoAbstractModel {
         super();
     }
 //
-    @Override
-    public String identifierColumn() {
-        return "var1";//need to be the same name as the identifier variable
-    }
-
-    @Override
-    public Object identifierValue() {
-        return var1;
-    }
 }
 ```
 On your Application class add to the onCreate() method:
