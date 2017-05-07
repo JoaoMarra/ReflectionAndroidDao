@@ -30,8 +30,8 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 public abstract class DaoAbstractModel {
 
     public static final String DEFAULT_ID_COLUMN_NAME = "REFLECTION_DAO_ID";
-    public String ID_COLMUN_NAME;
-    public Object REFLECTION_DAO_ID;
+    private String ID_COLMUN_NAME;
+    private Object REFLECTION_DAO_ID;
 
     public final String identifierColumn() {
         if(ID_COLMUN_NAME == null) {
@@ -178,6 +178,7 @@ public abstract class DaoAbstractModel {
     public void delete() {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
         db.delete(tableName(this.getClass()), identifierColumn()+"=?",new String[]{""+identifierValue()});
+        setDefaultIdentifier(-1);
     }
 
     public void update() {
