@@ -12,13 +12,19 @@ import org.json.JSONObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 import br.marraware.reflectiondatabase.DataBaseQueryBuilder;
 import br.marraware.reflectiondatabase.DataBaseTransaction;
 import br.marraware.reflectiondatabase.DataBaseTransactionCallBack;
 import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
+import br.marraware.reflectiondatabase.ReflectionDatabaseQuery;
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
@@ -72,17 +78,6 @@ public abstract class DaoAbstractModel {
 
     public DaoAbstractModel() {}
 
-    public DaoAbstractModel(JSONObject json) throws JSONException, IllegalAccessException {
-        Field[] fields = getFields();
-        String name;
-        for (int i = 0; i < fields.length; i++) {
-            name = fields[i].getName();
-            if(json.has(name)) {
-                fields[i].set(this, json.get(name));
-            }
-        }
-    }
-
     public void configureWithCursor(Cursor cursor) {
         Field[] fields = getFields();
         Class type;
@@ -115,12 +110,100 @@ public abstract class DaoAbstractModel {
                     getKey = true;
                 }
             }
-        } catch (Exception e){}
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         if(!getKey) {
             index = cursor.getColumnIndex(DEFAULT_ID_COLUMN_NAME);
             if(index != -1)
                 setDefaultIdentifier(cursor.getLong(index));
         }
+
+        ArrayList<Field> depedencies = getDependecyValues();
+        TableDepedency depedency;
+        ParameterizedType parameterizedType;
+        try {
+            for (Field field : depedencies) {
+                depedency = field.getAnnotation(TableDepedency.class);
+                if (DaoAbstractModel.class.isAssignableFrom(field.getType())) {
+                    field.set(this,
+                            ReflectionDatabaseQuery.get(field.getType(),
+                            new DataBaseQueryBuilder().where(depedency.value(),identifierValue(), DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL)));
+                } else if (List.class.isAssignableFrom(field.getType())) {
+                    parameterizedType = (ParameterizedType) field.getGenericType();
+                    if(parameterizedType != null) {
+                        type = (Class) parameterizedType.getActualTypeArguments()[0];
+                        field.set(this,
+                                ReflectionDatabaseQuery.getAll(type,
+                                        new DataBaseQueryBuilder().where(depedency.value(), identifierValue(), DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL)));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public HashMap<Class<? extends DaoAbstractModel>,String> getDepedencyTables() {
+        HashMap<Class<? extends DaoAbstractModel>,String> tables = new HashMap<>();
+        Field[] fields = getFields();
+        Field field;
+        Class type;
+        TableDepedency depedency;
+        ParameterizedType parameterizedType;
+        try {
+            for (int i = 0; i < fields.length; i++) {
+                field = fields[i];
+                type = null;
+                if(field.isAnnotationPresent(TableDepedency.class)) {
+                    depedency = field.getAnnotation(TableDepedency.class);
+                    if (DaoAbstractModel.class.isAssignableFrom(field.getType())) {
+                        type = field.getType();
+                    } else if (List.class.isAssignableFrom(field.getType())) {
+                        parameterizedType = (ParameterizedType) field.getGenericType();
+                        if(parameterizedType != null) {
+                            type = (Class) parameterizedType.getActualTypeArguments()[0];
+                        }
+                    }
+                    if(type != null && DaoAbstractModel.class.isAssignableFrom(type)) {
+                        tables.put(type,depedency.value());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tables;
+    }
+
+    public ArrayList<Field> getDependecyValues() {
+        ArrayList<Field> objects = new ArrayList<>();
+        Field[] fields = getFields();
+        Field field;
+        Class type;
+        ParameterizedType parameterizedType;
+        try {
+            for (int i = 0; i < fields.length; i++) {
+                field = fields[i];
+                type = null;
+                if(field.isAnnotationPresent(TableDepedency.class)) {
+                    if (DaoAbstractModel.class.isAssignableFrom(field.getType())) {
+                        type = field.getType();
+                    } else if (List.class.isAssignableFrom(field.getType())) {
+                        parameterizedType = (ParameterizedType) field.getGenericType();
+                        if(parameterizedType != null)
+                            type = (Class) parameterizedType.getActualTypeArguments()[0];
+                    }
+                    if(type != null && DaoAbstractModel.class.isAssignableFrom(type)) {
+                        objects.add(field);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return objects;
     }
 
     private Field[] getFields() {
@@ -170,6 +253,8 @@ public abstract class DaoAbstractModel {
                     setDefaultIdentifier(id);
                 }
             }
+
+            saveDependecies(identifierValue());
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -178,7 +263,25 @@ public abstract class DaoAbstractModel {
     public void delete() {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
         db.delete(tableName(this.getClass()), identifierColumn()+"=?",new String[]{""+identifierValue()});
+        deleteDependecies();
         setDefaultIdentifier(-1);
+    }
+
+    public void deleteDependecies() {
+        HashMap<Class<? extends DaoAbstractModel>,String> depedencies = getDepedencyTables();
+        if(!depedencies.isEmpty()) {
+            SQLiteDatabase db = ReflectionDatabaseManager.db();
+            Iterator<Class<? extends DaoAbstractModel>> iterator = depedencies.keySet().iterator();
+            Class<? extends DaoAbstractModel> type;
+            String key;
+            int qtd;
+            while (iterator.hasNext()) {
+                type = iterator.next();
+                key = depedencies.get(type);
+                qtd = db.delete(DaoAbstractModel.tableName(type), key+" =?",new String[]{""+identifierValue()});
+                Log.d(type.getSimpleName(),"DELETE DEPENDENCY - "+qtd);
+            }
+        }
     }
 
     public void update() {
@@ -215,7 +318,42 @@ public abstract class DaoAbstractModel {
             }
             Object identifier = identifierValue();
             db.update(tableName(this.getClass()),values, identifierColumn()+"=?", new String[]{""+identifier});
-        } catch (Exception e){}
+
+            saveDependecies(identifier);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveDependecies(Object idValue) {
+        ArrayList<Field> depedencies = getDependecyValues();
+        DaoAbstractModel model;
+        ArrayList<DaoAbstractModel> modelList;
+        TableDepedency depedency;
+        try {
+            for (Field field : depedencies) {
+                depedency = field.getAnnotation(TableDepedency.class);
+                if (DaoAbstractModel.class.isAssignableFrom(field.getType())) {
+                    model = (DaoAbstractModel) field.get(this);
+                    if (model != null) {
+                        model.getClass().getDeclaredField(depedency.value()).set(model,idValue);
+                        model.save();
+                        Log.d(model.getClass().getSimpleName(), "SAVE DEPENDENCY - "+model.identifierValue());
+                    }
+                } else if (List.class.isAssignableFrom(field.getType())) {
+                    modelList = (ArrayList<DaoAbstractModel>) field.get(this);
+                    if(modelList != null) {
+                        for (DaoAbstractModel m : modelList) {
+                            m.getClass().getDeclaredField(depedency.value()).set(m,idValue);
+                            m.save();
+                            Log.d(m.getClass().getSimpleName(), "SAVE DEPENDENCY - "+m.identifierValue());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public int rowCount() {

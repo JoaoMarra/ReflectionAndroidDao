@@ -8,6 +8,8 @@ import android.util.Log;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
 import br.marraware.reflectiondatabase.model.TRANSACTION_METHOD;
@@ -24,13 +26,13 @@ public final class ReflectionDatabaseQuery {
      * @param queryBuilder Structure to use in select query
      * @return the first model found or null
      */
-    public static DaoAbstractModel get(Class<? extends DaoAbstractModel> modelClass, DataBaseQueryBuilder queryBuilder) {
+    public static DaoAbstractModel get(Class modelClass, DataBaseQueryBuilder queryBuilder) {
         try {
             Constructor constructor = modelClass.getConstructor();
             DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
             SQLiteDatabase db = ReflectionDatabaseManager.db();
             String rawQuery;
-            queryBuilder.setTableName(model.tableName(modelClass));
+            queryBuilder.setTableName(DaoAbstractModel.tableName(modelClass));
             String query = queryBuilder.getQuery();
             rawQuery = "select * from "+queryBuilder.getTableName()+query;
             Log.d("DataBaseTransaction","GET - "+rawQuery);
@@ -39,6 +41,36 @@ public final class ReflectionDatabaseQuery {
                 model.configureWithCursor(cursor);
                 return model;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public static ArrayList<DaoAbstractModel> getAll(Class modelClass, DataBaseQueryBuilder queryBuilder) {
+        try {
+            SQLiteDatabase db = ReflectionDatabaseManager.db();
+            String rawQuery;
+            queryBuilder.setTableName(DaoAbstractModel.tableName(modelClass));
+            String query = queryBuilder.getQuery();
+            rawQuery = "select * from "+queryBuilder.getTableName()+query;
+            Log.d("DataBaseTransaction","GET - "+rawQuery);
+            Cursor cursor = db.rawQuery(rawQuery, null);
+            ArrayList models = new ArrayList();
+            try {
+                Constructor constructor = modelClass.getConstructor();
+                DaoAbstractModel model;
+                if (cursor.moveToFirst()) {
+                    while (!cursor.isAfterLast()) {
+                        model = (DaoAbstractModel) constructor.newInstance();
+                        model.configureWithCursor(cursor);
+                        models.add(model);
+                        cursor.moveToNext();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return models;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,6 +136,8 @@ public final class ReflectionDatabaseQuery {
             DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
             SQLiteDatabase db = ReflectionDatabaseManager.db();
             String rawQuery;
+            if(queryBuilder == null)
+                queryBuilder = new DataBaseQueryBuilder();
             queryBuilder.setTableName(model.tableName(modelClass));
             String where = queryBuilder.getWhereString();
             Log.d("DataBaseTransaction", "DELETE - where " + where);
@@ -162,8 +196,28 @@ public final class ReflectionDatabaseQuery {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
 
         int rows = db.delete(DaoAbstractModel.tableName(modelClass),"1",null);
-        if(rows > 0)
+        if(rows > 0) {
+            try {
+                Constructor constructor = modelClass.getConstructor();
+                DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
+
+                HashMap<Class<? extends DaoAbstractModel>,String> depedencies = model.getDepedencyTables();
+                if (!depedencies.isEmpty()) {
+                    Iterator<Class<? extends DaoAbstractModel>> iterator = depedencies.keySet().iterator();
+                    Class<? extends DaoAbstractModel> type;
+                    int qtd;
+                    while (iterator.hasNext()) {
+                        type = iterator.next();
+                        qtd = db.delete(DaoAbstractModel.tableName(type),"1",null);
+                        Log.d(type.getSimpleName(), "DELETE DEPENDENCY - " + qtd);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             return true;
+        }
         return false;
     }
 }
