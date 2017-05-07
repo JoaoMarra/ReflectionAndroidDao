@@ -12,6 +12,7 @@ import java.util.Date;
 
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoAbstractModel;
+import br.marraware.reflectiondatabase.model.PrimaryKey;
 
 /**
  * Created by joao_gabriel on 02/05/17.
@@ -45,11 +46,12 @@ public final class ReflectionDatabaseManager{
 
         StringBuilder builder = new StringBuilder();
         DaoAbstractModel model;
+        boolean setKey = false;
         try {
             Constructor constructor = modelClass.getConstructor();
             model = (DaoAbstractModel) constructor.newInstance();
 
-            Field[] fields = modelClass.getFields();
+            Field[] fields = modelClass.getDeclaredFields();
             builder.append("CREATE TABLE IF NOT EXISTS ");
             builder.append(model.tableName(modelClass)+"(");
             Class type;
@@ -74,11 +76,12 @@ public final class ReflectionDatabaseManager{
                 } else if(type.isInstance(new Date())) {
                     typeString = "varchar("+DaoHelper.DATE_FORMATE_STRING.length()+")";
                 }
-                if(name.compareTo(model.identifierColumn()) == 0) {
+                if(!setKey && fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     typeString += " primary key";
+                    setKey = true;
                 }
                 if(typeString != null)
-                    builder.append(name+" "+typeString+(i == fields.length-1?")":","));
+                    builder.append("\n"+name+" "+typeString+",");
             }
         } catch (Exception e){
             String exec = builder.toString();
@@ -86,6 +89,10 @@ public final class ReflectionDatabaseManager{
             return false;
         }
         finally {
+            if(!setKey) {
+                builder.append("\n"+DaoAbstractModel.DEFAULT_ID_COLUMN_NAME+" INTEGER primary key autoincrement)");
+                setKey = true;
+            }
             String exec = builder.toString();
             if(exec.charAt(exec.length()-1) == ',')
                 exec = exec.substring(0,exec.length()-1)+")";

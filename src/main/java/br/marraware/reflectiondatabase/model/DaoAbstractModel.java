@@ -29,8 +29,46 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 
 public abstract class DaoAbstractModel {
 
-    public abstract String identifierColumn();
-    public abstract Object identifierValue();
+    public static final String DEFAULT_ID_COLUMN_NAME = "REFLECTION_DAO_ID";
+    public String ID_COLMUN_NAME;
+    public Object REFLECTION_DAO_ID;
+
+    public final String identifierColumn() {
+        if(ID_COLMUN_NAME == null) {
+            Field[] fields = getFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    ID_COLMUN_NAME = field.getName();
+                    return ID_COLMUN_NAME;
+                }
+            }
+            if(ID_COLMUN_NAME == null)
+                ID_COLMUN_NAME = DEFAULT_ID_COLUMN_NAME;
+        }
+        return ID_COLMUN_NAME;
+    }
+
+    public final Object identifierValue() {
+        if(REFLECTION_DAO_ID == null) {
+            Field[] fields = getFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    try {
+                        REFLECTION_DAO_ID = field.get(this);
+                        return REFLECTION_DAO_ID;
+                    } catch (Exception e){}
+                }
+            }
+            if(REFLECTION_DAO_ID == null)
+                REFLECTION_DAO_ID = -1L;
+        }
+        return REFLECTION_DAO_ID;
+    }
+
+    private void setDefaultIdentifier(long id) {
+        if(identifierColumn().compareTo(DEFAULT_ID_COLUMN_NAME) == 0)
+            REFLECTION_DAO_ID = id;
+    }
 
     public DaoAbstractModel() {}
 
@@ -48,8 +86,9 @@ public abstract class DaoAbstractModel {
     public void configureWithCursor(Cursor cursor) {
         Field[] fields = getFields();
         Class type;
+        boolean getKey = false;
+        int index;
         try {
-            int index;
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
                 index = cursor.getColumnIndex(fields[i].getName());
@@ -72,8 +111,16 @@ public abstract class DaoAbstractModel {
                 }  else if(type.isInstance(new Date())) {
                     fields[i].set(this, DaoHelper.stringToDate(cursor.getString(index)));
                 }
+                if(fields[i].isAnnotationPresent(PrimaryKey.class)) {
+                    getKey = true;
+                }
             }
         } catch (Exception e){}
+        if(!getKey) {
+            index = cursor.getColumnIndex(DEFAULT_ID_COLUMN_NAME);
+            if(index != -1)
+                setDefaultIdentifier(cursor.getLong(index));
+        }
     }
 
     private Field[] getFields() {
@@ -86,6 +133,7 @@ public abstract class DaoAbstractModel {
         ContentValues values = new ContentValues();
         Field[] fields = getFields();
         Class type;
+        boolean getKey = false;
         try {
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
@@ -107,8 +155,21 @@ public abstract class DaoAbstractModel {
                 } else if (type.isInstance(new Date())) {
                     values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
                 }
+                if(fields[i].isAnnotationPresent(PrimaryKey.class)) {
+                    getKey = true;
+                }
             }
-            db.insertWithOnConflict(tableName(this.getClass()), null, values,CONFLICT_REPLACE);
+            if(!getKey) {
+                if((Long)identifierValue() != -1)
+                    values.put(identifierColumn(), (Long)identifierValue());
+            }
+            long id = db.insertWithOnConflict(tableName(this.getClass()), null, values,CONFLICT_REPLACE);
+
+            if(!getKey) {
+                if((Long)identifierValue() == -1) {
+                    setDefaultIdentifier(id);
+                }
+            }
         } catch (Exception e){
             e.printStackTrace();
         }

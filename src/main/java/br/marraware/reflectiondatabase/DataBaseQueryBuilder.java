@@ -1,6 +1,7 @@
 package br.marraware.reflectiondatabase;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by joao_gabriel on 03/05/17.
@@ -107,8 +108,8 @@ public class DataBaseQueryBuilder {
         limit = -1;
     }
 
-    public DataBaseQueryBuilder where(String column, String value, QUERY_ITEM_TYPE itemType) {
-        items.add(new QueryItem(column, value, itemType));
+    public DataBaseQueryBuilder where(String column, Object value, QUERY_ITEM_TYPE itemType) {
+        items.add(new QueryItem(column, value.toString(), itemType));
         return this;
     }
 
