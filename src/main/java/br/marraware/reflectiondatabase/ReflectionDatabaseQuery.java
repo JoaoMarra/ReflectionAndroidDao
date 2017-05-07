@@ -32,6 +32,8 @@ public final class ReflectionDatabaseQuery {
             DaoAbstractModel model = (DaoAbstractModel) constructor.newInstance();
             SQLiteDatabase db = ReflectionDatabaseManager.db();
             String rawQuery;
+            if(queryBuilder == null)
+                queryBuilder = new DataBaseQueryBuilder();
             queryBuilder.setTableName(DaoAbstractModel.tableName(modelClass));
             String query = queryBuilder.getQuery();
             rawQuery = "select * from "+queryBuilder.getTableName()+query;
@@ -46,10 +48,12 @@ public final class ReflectionDatabaseQuery {
         }
         return null;
     }
-    public static ArrayList<DaoAbstractModel> getAll(Class modelClass, DataBaseQueryBuilder queryBuilder) {
+    public static ArrayList getAll(Class modelClass, DataBaseQueryBuilder queryBuilder) {
         try {
             SQLiteDatabase db = ReflectionDatabaseManager.db();
             String rawQuery;
+            if(queryBuilder == null)
+                queryBuilder = new DataBaseQueryBuilder();
             queryBuilder.setTableName(DaoAbstractModel.tableName(modelClass));
             String query = queryBuilder.getQuery();
             rawQuery = "select * from "+queryBuilder.getTableName()+query;
