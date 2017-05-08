@@ -1,100 +1,96 @@
 # ReflectionDao
-SQLite helper for android using reflection
+SQLite library for android using reflection. The central ideia is to simplify the creation of DAO classes, and no need for complex configurations.
 
 # How to use
 
 Clone and import as a new module dependance.
-Each of your DaoModels need to be as the one above:
+Here is some example of DAO classes used on the examples below:
 
-```
-public class DaoModel extends DaoAbstractModel {
+```java
+public class Person extends DaoAbstractModel {
 
-    @PrimaryKey <- this annotation indicates the primary key, you could not declare any so the DAO will use an default Long
-    public Integer var1;//need to be object not primitive
-    public String var2;
-
-//THIS CONSTRUCTOR IS IMPORTANT!!!!, YOU MAY NOT INCLUDE IT BUT YOU CAN`T HAVE OTHER CONSTRUCTOR WITHOUT THIS
-    public DaoModel() {
-        super();
+    @PrimaryKey
+    public Integer rg;//need to be object not primitive
+    public String name;
+    public Integer age;
+    @TableDepedency("rgPerson")
+    public List<Address> addresses;
+    
+    public void addAddress(Address address) {
+        if(addresses == null)
+            addresses = new ArrayList<Address>();
+        address.rgPerson = rg; //not really necessary when save() or update()
+        addresses.add(address);
     }
-//
+}
+
+public class Address extends DaoAbstractModel {
+
+    public Integer rgPerson;
+    public String stringAddress;
+    
 }
 ```
+`@PrimaryKey` annotation indicates which variable is considered the primaryKey of the table. If you don\`t indicate it, the library will create an default Long id that can be accessed with the method `identifierValue()` and `identifierColumn()` to access the column name.
+`@TableDepedency("foreignKey")` annotation indicates association between tables (1-1 or 1-n). In the example, Person has `n` addresses, and the foreignKey its `rgPerson` on Address class. Wherever a Person is saved, updated or deleted every Address with `rgPerson` equals Person identifier(`rg`) will be saved, updated and deleted.
+
 On your Application class add to the onCreate() method:
-```
+```java
 ReflectionDatabaseManager.initDataBase(//instance of SQLiteOpenHelper);
 ```
 Finally on your SQLiteOpenHelper class, you can use these example to create and drop your tables:
 
-```
+```java
 @Override
     public void onCreate(SQLiteDatabase db) {
-        ReflectionDatabaseManager.createTable(DaoModel.class,db);
+        ReflectionDatabaseManager.createTable(Person.class,db);
+        ReflectionDatabaseManager.createTable(Address.class,db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        ReflectionDatabaseManager.dropTable(DaoModel.class,db);
+        ReflectionDatabaseManager.dropTable(Person.class,db);
+        ReflectionDatabaseManager.dropTable(Address.class,db);
         onCreate(db);
     }
 ```
 
-# Select Build
+# Usage examples
 
-You can perform get and getAsync methods from `ReflectionDatabaseQuery` class like in this example:
-
-Here we want to find the `Person` with `Name` equals `Robert`
-```
-    DataBaseQueryBuilder builder = new DataBaseQueryBuilder().
-    where("Name", "Robert", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL);
+Here some code using the lib:
+```java
+    Person person1 = new Person();
+    person1.rg = 1;
+    person1.name = Paulo;
+    person1.age = 16;
+    person1.save(); //creates or update the Person with rg = 1
     
-    DaoPerson person = (DaoPerson) ReflectionDatabaseQuery.get(DaoPerson.class,builder);
-```
-
-You can use these comparation enum:
-```
-public enum QUERY_ITEM_TYPE {
-        EQUAL,
-        NOTEQUAL,
-        LIKE,
-        NOT_LIKE,
-        CONTAINS,
-        MORE_THAN,
-        MORE_EQUAL,
-        LESS_THAN,
-        LESS_EQUAL
-    }
-```
-
-Now we want to find every `Person` with `Name` like `Robin` or `Vanessa` with age of 16, for this we\`ll need to use getAsync
-```
-    DataBaseQueryBuilder builder = new DataBaseQueryBuilder().
-    where("Age", "16", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL);
-    builder.whereTree(DataBaseQueryBuilder.QUERY_TREE_CONNECTION.OR,
-                    new DataBaseQueryBuilder.QueryTreeNode("Name","Robin", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL),
-                    new DataBaseQueryBuilder.QueryTreeNode("Name","Vanessa", DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL));
+    Address address1 = new Address();
+    address1.stringAddress = "somewhere";
+    person1.addAddress(address1);
+    person1.update(); //update person1 saving the address
+   
+    ...
     
-    ReflectionDatabaseQuery.getAsync(DaoPerson.class, builder, new DataBaseTransactionCallBack() {
+    Person person2 = (Person) ReflectionDatabaseQuery.get(Person.class, new DataBaseQueryBuilder().where("rg",1, DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL));
+    System.out.println(person2.addresses.get(0).stringAddress); //will print "somewhere"
+    
+    ...
+    
+    ReflectionDatabaseQuery.getAsync(Address.class, new DataBaseQueryBuilder().where("rgPerson",1, DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL), new DataBaseTransactionCallBack() {
             @Override
             public void onBack(ArrayList<DaoAbstractModel> models) {
-                //compute your data
+                ArrayList<Address> addresses = (ArrayList<Address>) models;
+                System.out.println(addresses.get(0).stringAddress); //will print "somewhere"
             }
         });
-```
-Here we used `QueryTreeNode` to create an exclusive where clause with `OR` connection.
-
-# Save, update, delete
-
-Every DaoAbstractModel extended class has methods to `save()`, `update()` and `delete()`. You can use these like in the exemple below:
-```
-    DaoPerson person = new DaoPerson();
-    person.id = 1;
-    person.Name = Michelle;
-    person.save(); <- save in database
+        
+    ...
     
-    person.Age = 16;
-    person.update(); <- update data assuming "id" as identifierColumn
-    
-    person.delete(); <- delete data from base
+    ReflectionDatabaseQuery.clearTable(Person.class);
+    System.out.println("Count - "+address1.rowCount()); //will print "Count - 0"
 ```
-You can use `ReflectionDatabaseQuery` to call `saveAll(DataBaseTransactionCallBack, DaoAbstractModel...)`, `updateAll(DataBaseTransactionCallBack, DaoAbstractModel...)` and `deleteAll(DataBaseTransactionCallBack, DaoAbstractModel...)` to modify simutalneous data. Not that these methods happen async, use `DataBaseTransactionCallBack` interface to know when it\`s finished.
+
+# Important features
+
+You can manipulate your data using the DaoClasse itself or using `ReflectionDatabaseQuery` class where you can `get`, `getAll`, `getAsync`, `saveAll`, `delete`, `deleteAsync`, `deleteAll`, `updateAll` and `clearTable`. This you cant learn how to use on Repository Wiki.
