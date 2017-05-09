@@ -2,6 +2,7 @@ package br.marraware.reflectiondatabase.queries;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.NODE_TREE_COMPARATION;
 import br.marraware.reflectiondatabase.model.ORDER_BY;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
+import br.marraware.reflectiondatabase.utils.AsyncQueryCallback;
 import br.marraware.reflectiondatabase.utils.QueryNode;
+import br.marraware.reflectiondatabase.utils.TransactionTask;
 
 /**
  * Created by joao_gabriel on 09/05/17.
@@ -162,5 +165,17 @@ public class QueryTransaction<T extends DaoModel> {
             }
         }
         return models;
+    }
+
+    public T executeForFirst() throws QueryException {
+        ArrayList<T> models = (ArrayList<T>) execute();
+        if(models != null && models.size() > 0)
+            return models.get(0);
+        return null;
+    }
+
+    public void executeAsync(final AsyncQueryCallback<T> callback) {
+        TransactionTask<T> task = new TransactionTask<>(callback, this);
+        task.execute();
     }
 }
