@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.Date;
 
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
-import br.marraware.reflectiondatabase.model.DaoAbstractModel;
+import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.PrimaryKey;
 
 /**
@@ -37,19 +37,19 @@ public final class ReflectionDatabaseManager{
 
     /**
      * Creates a new table using the Dao class
-     * @param modelClass Dao class extending DaoAbstractModel
+     * @param modelClass Dao class extending DaoModel
      * @return true if the table was created, false instead
      */
-    public static boolean createTable(Class<? extends DaoAbstractModel> modelClass, SQLiteDatabase db) {
+    public static boolean createTable(Class<? extends DaoModel> modelClass, SQLiteDatabase db) {
         if(dataBaseHelper == null)
             return false;
 
         StringBuilder builder = new StringBuilder();
-        DaoAbstractModel model;
+        DaoModel model;
         boolean setKey = false;
         try {
             Constructor constructor = modelClass.getConstructor();
-            model = (DaoAbstractModel) constructor.newInstance();
+            model = (DaoModel) constructor.newInstance();
 
             Field[] fields = modelClass.getDeclaredFields();
             builder.append("CREATE TABLE IF NOT EXISTS ");
@@ -90,7 +90,7 @@ public final class ReflectionDatabaseManager{
         }
         finally {
             if(!setKey) {
-                builder.append("\n"+DaoAbstractModel.DEFAULT_ID_COLUMN_NAME+" INTEGER primary key autoincrement)");
+                builder.append("\n"+DaoModel.DEFAULT_ID_COLUMN_NAME+" INTEGER primary key autoincrement)");
                 setKey = true;
             }
             String exec = builder.toString();
@@ -104,10 +104,10 @@ public final class ReflectionDatabaseManager{
 
     /**
      * Drops table using the Dao class
-     * @param modelClass Dao class extending DaoAbstractModel
+     * @param modelClass Dao class extending DaoModel
      * @return true if the table was created, false instead
      */
-    public static boolean dropTable(Class<? extends DaoAbstractModel> modelClass, SQLiteDatabase db) {
+    public static boolean dropTable(Class<? extends DaoModel> modelClass, SQLiteDatabase db) {
         if(dataBaseHelper == null)
             return false;
         db.execSQL("DROP TABLE IF EXISTS "+modelClass.getSimpleName());

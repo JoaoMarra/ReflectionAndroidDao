@@ -7,7 +7,7 @@ Clone and import as a new module dependance.
 Each of your DaoModels need to be as the one above:
 
 ```
-public class DaoModel extends DaoAbstractModel {
+public class DaoModel extends DaoModel {
 
     @PrimaryKey <- this annotation indicates the primary key, you could not declare any so the DAO will use an default Long
     public Integer var1;//need to be object not primitive
@@ -76,7 +76,7 @@ Now we want to find every `Person` with `Name` like `Robin` or `Vanessa` with ag
     
     ReflectionDatabaseQuery.getAsync(DaoPerson.class, builder, new DataBaseTransactionCallBack() {
             @Override
-            public void onBack(ArrayList<DaoAbstractModel> models) {
+            public void onBack(ArrayList<DaoModel> models) {
                 //compute your data
             }
         });
@@ -85,7 +85,7 @@ Here we used `QueryTreeNode` to create an exclusive where clause with `OR` conne
 
 # Save, update, delete
 
-Every DaoAbstractModel extended class has methods to `save()`, `update()` and `delete()`. You can use these like in the exemple below:
+Every DaoModel extended class has methods to `save()`, `update()` and `delete()`. You can use these like in the exemple below:
 ```
     DaoPerson person = new DaoPerson();
     person.id = 1;
@@ -97,4 +97,4 @@ Every DaoAbstractModel extended class has methods to `save()`, `update()` and `d
     
     person.delete(); <- delete data from base
 ```
-You can use `ReflectionDatabaseQuery` to call `saveAll(DataBaseTransactionCallBack, DaoAbstractModel...)`, `updateAll(DataBaseTransactionCallBack, DaoAbstractModel...)` and `deleteAll(DataBaseTransactionCallBack, DaoAbstractModel...)` to modify simutalneous data. Not that these methods happen async, use `DataBaseTransactionCallBack` interface to know when it\`s finished.
+You can use `ReflectionDatabaseQuery` to call `saveAll(DataBaseTransactionCallBack, DaoModel...)`, `updateAll(DataBaseTransactionCallBack, DaoModel...)` and `deleteAll(DataBaseTransactionCallBack, DaoModel...)` to modify simutalneous data. Not that these methods happen async, use `DataBaseTransactionCallBack` interface to know when it\`s finished.
