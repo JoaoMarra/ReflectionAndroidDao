@@ -4,6 +4,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+
 import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 import br.marraware.reflectiondatabase.exception.QueryException;
 import br.marraware.reflectiondatabase.model.DaoModel;
@@ -31,9 +34,34 @@ public class Delete extends QueryType {
     public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws QueryException {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
 
-        Log.d("RelfectionDataBase","DELETE - where"+whereString());
+        String where = whereString();
+        Log.d("RelfectionDataBase","DELETE - where"+where);
 
-        db.delete(DaoModel.tableName(modelClass),whereString(), null);
+        String rawQuery = "select * from "+DaoModel.tableName(modelClass)+
+                (where != null && where.length() > 0?" where"+where:"");
+        Cursor cursor = db.rawQuery(rawQuery, null);
+        ArrayList<T> models = null;
+        if(cursor != null) {
+            try {
+                Constructor<T> constructor = modelClass.getConstructor();
+                T model;
+                if (cursor.moveToFirst()) {
+                    models = new ArrayList();
+                    while (!cursor.isAfterLast()) {
+                        model = constructor.newInstance();
+                        model.configureWithCursor(cursor);
+                        models.add(model);
+                        cursor.moveToNext();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(models != null) {
+            for(T model : models)
+                model.delete();
+        }
 
         return null;
     }

@@ -34,7 +34,8 @@ public abstract class QueryType {
     }
 
     public void whereTree(NODE_TREE_COMPARATION comparation, QueryNode... nodes) {
-        trees.add(new QueryNodeTree(comparation, nodes));
+        if(nodes.length > 0)
+            trees.add(new QueryNodeTree(comparation, nodes));
     }
 
     public String whereString() {

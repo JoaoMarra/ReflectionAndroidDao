@@ -134,7 +134,7 @@ public class QueryTransaction<T extends DaoModel> {
             if (orderBy == null) {
                 orderBy = newOrderBy;
             } else {
-                orderBy = orderBy+newOrderBy;
+                orderBy = orderBy+" , "+newOrderBy;
             }
         }
 
@@ -153,7 +153,6 @@ public class QueryTransaction<T extends DaoModel> {
     public List<T> execute() throws QueryException {
 
         long now = System.currentTimeMillis();
-        Log.d("QueryTransaction","BENCHMARK - now:"+now);
 
         String newOrderBy = null;
         if(orderBy != null) {
@@ -178,7 +177,7 @@ public class QueryTransaction<T extends DaoModel> {
                 e.printStackTrace();
             }
         }
-        Log.d("QueryTransaction","BENCHMARK - end:"+(System.currentTimeMillis() - now));
+        Log.d("QueryTransaction","BENCHMARK - Query:"+type.getClass().getSimpleName()+" end:"+(System.currentTimeMillis() - now));
         return models;
     }
 
