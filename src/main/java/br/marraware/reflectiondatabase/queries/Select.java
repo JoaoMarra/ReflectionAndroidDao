@@ -32,8 +32,14 @@ public class Select extends QueryType {
 
         SQLiteDatabase db = ReflectionDatabaseManager.db();
 
-        String rawQuery = "select * from "+DaoModel.tableName(modelClass)+" where"+whereString()+(orderBy != null?orderBy:"")+(limit != -1?" limit "+limit:"");
-        Log.d("RelfectionDataBase","SELEC - "+rawQuery);
+        String where = whereString();
+
+        String rawQuery = "select * from "+DaoModel.tableName(modelClass)+
+                (where != null && where.length() > 0?" where"+where:"")+
+                (orderBy != null?orderBy:"")+
+                (limit != -1?" limit "+limit:"");
+
+        Log.d("RelfectionDataBase","SELECT - "+rawQuery);
 
         return db.rawQuery(rawQuery, null);
     }

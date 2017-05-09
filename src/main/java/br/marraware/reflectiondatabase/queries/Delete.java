@@ -31,6 +31,8 @@ public class Delete extends QueryType {
     public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws QueryException {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
 
+        Log.d("RelfectionDataBase","DELETE - where"+whereString());
+
         db.delete(DaoModel.tableName(modelClass),whereString(), null);
 
         return null;

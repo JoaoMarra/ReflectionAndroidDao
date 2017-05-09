@@ -3,6 +3,7 @@ package br.marraware.reflectiondatabase.queries;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -49,8 +50,17 @@ public class QueryTransaction<T extends DaoModel> {
         return this;
     }
 
+    public QueryTransaction<T> addModel(T... models) throws ColumnNotFoundException {
+        if(type instanceof InsertAll) {
+            InsertAll insertAll = (InsertAll) type;
+            insertAll.addModel(models);
+        }
+
+        return this;
+    }
+
     public QueryTransaction<T> where(String column, Object value, WHERE_COMPARATION comparation) throws ColumnNotFoundException {
-        if(type instanceof Insert)
+        if(type instanceof Insert || type instanceof InsertAll)
             return this;
 
         type.where(modelClass, column, value, comparation);
@@ -58,7 +68,7 @@ public class QueryTransaction<T extends DaoModel> {
     }
 
     public QueryTransaction<T> whereAnd(Object[]... columnValueComparation) throws ColumnNotFoundException {
-        if(type instanceof Insert)
+        if(type instanceof Insert || type instanceof InsertAll)
             return this;
 
         String column;
@@ -87,7 +97,7 @@ public class QueryTransaction<T extends DaoModel> {
     }
 
     public QueryTransaction<T> whereOr(Object[]... columnValueComparation) throws ColumnNotFoundException {
-        if(type instanceof Insert)
+        if(type instanceof Insert || type instanceof InsertAll)
             return this;
 
         String column;
@@ -116,7 +126,7 @@ public class QueryTransaction<T extends DaoModel> {
     }
 
     public QueryTransaction<T> orderBy(String column, ORDER_BY order) throws ColumnNotFoundException {
-        if(type instanceof Insert || type instanceof Update)
+        if(type instanceof Insert || type instanceof Update || type instanceof InsertAll)
             return this;
 
         if(DaoModel.checkColumn(modelClass, column)) {
@@ -132,7 +142,7 @@ public class QueryTransaction<T extends DaoModel> {
     }
 
     public QueryTransaction<T> limit(int limit) {
-        if(type instanceof Insert || type instanceof Update)
+        if(type instanceof Insert || type instanceof Update || type instanceof InsertAll)
             return this;
 
         this.limit = limit;
@@ -141,6 +151,10 @@ public class QueryTransaction<T extends DaoModel> {
     }
 
     public List<T> execute() throws QueryException {
+
+        long now = System.currentTimeMillis();
+        Log.d("QueryTransaction","BENCHMARK - now:"+now);
+
         String newOrderBy = null;
         if(orderBy != null) {
             newOrderBy = " order by "+orderBy;
@@ -164,6 +178,7 @@ public class QueryTransaction<T extends DaoModel> {
                 e.printStackTrace();
             }
         }
+        Log.d("QueryTransaction","BENCHMARK - end:"+(System.currentTimeMillis() - now));
         return models;
     }
 
@@ -178,4 +193,6 @@ public class QueryTransaction<T extends DaoModel> {
         TransactionTask<T> task = new TransactionTask<>(callback, this);
         task.execute();
     }
+
+
 }

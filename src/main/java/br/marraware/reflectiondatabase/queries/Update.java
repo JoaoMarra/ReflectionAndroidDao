@@ -85,8 +85,10 @@ public class Update extends QueryType {
             String tableName = DaoModel.tableName(modelClass);
             int rows = db.update(tableName, cValues, whereString(), null);
 
-            if(rows > 0)
-                return db.rawQuery("select * from " + tableName + " where" + whereString(), null);
+            if(rows > 0) {
+                String where = whereString();
+                return db.rawQuery("select * from " + tableName + (where != null && where.length() > 0?" where"+where:""), null);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
