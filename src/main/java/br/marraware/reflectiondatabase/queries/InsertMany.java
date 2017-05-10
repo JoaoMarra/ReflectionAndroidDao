@@ -1,26 +1,18 @@
 package br.marraware.reflectiondatabase.queries;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 import br.marraware.reflectiondatabase.exception.ColumnNotFoundException;
 import br.marraware.reflectiondatabase.exception.InsertIdNotFoundException;
-import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.NODE_TREE_COMPARATION;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
 import br.marraware.reflectiondatabase.utils.QueryNode;
-
-import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 
 /**
  * Created by joao_gabriel on 09/05/17.
@@ -32,11 +24,11 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
  * execute return the list of inserted models
  */
 
-public class  InsertAll<V extends DaoModel> extends QueryType {
+public class InsertMany<V extends DaoModel> extends QueryType {
 
     protected ArrayList<V> models;
 
-    private InsertAll() {
+    private InsertMany() {
         super();
         models = new ArrayList<>();
     }
@@ -53,11 +45,12 @@ public class  InsertAll<V extends DaoModel> extends QueryType {
             SQLiteDatabase db = ReflectionDatabaseManager.db();
             return db.rawQuery("select * from " + DaoModel.tableName(modelClass) + " where " + where, null);
         }
+
         return null;
     }
 
-    public static <T extends DaoModel> QueryTransaction<T> into(Class<T> T) {
-        return new QueryTransaction<T>(T, new InsertAll<T>());
+    public static <T extends DaoModel> InsertManyQueryTransaction<T> into(Class<T> T) {
+        return new InsertManyQueryTransaction<T>(T, new InsertMany<T>());
     }
 
     public void addModel(V... models) throws ColumnNotFoundException {

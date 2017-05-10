@@ -23,7 +23,7 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
  */
 
 /**
- * Class used to insert a row from table
+ * Class used to insert a row into a table
  *
  * execute return a list of models where the insert model is at first position
  */
@@ -92,8 +92,8 @@ public class Insert extends QueryType {
         return null;
     }
 
-    public static <T extends DaoModel> QueryTransaction<T> into(Class<T> T) {
-        return new QueryTransaction<T>(T, new Insert());
+    public static <T extends DaoModel> InsertQueryTransaction<T> into(Class<T> T) {
+        return new InsertQueryTransaction<T>(T, new Insert());
     }
 
     public void set(String column, Object value, Class<? extends DaoModel> modelClass) throws ColumnNotFoundException {

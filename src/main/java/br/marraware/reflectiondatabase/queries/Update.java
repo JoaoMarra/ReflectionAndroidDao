@@ -3,6 +3,7 @@ package br.marraware.reflectiondatabase.queries;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.util.Date;
@@ -39,8 +40,8 @@ public class Update extends QueryType {
         }
     }
 
-    public static <T extends DaoModel> QueryTransaction<T> table(Class<T> T) {
-        return new QueryTransaction<T>(T, new Update());
+    public static <T extends DaoModel> UpdateQueryTransaction<T> table(Class<T> T) {
+        return new UpdateQueryTransaction<T>(T, new Update());
     }
 
     @Override
@@ -83,6 +84,7 @@ public class Update extends QueryType {
             }
 
             String tableName = DaoModel.tableName(modelClass);
+            Log.d("RelfectionDataBase","UPDATE - where"+whereString());
             int rows = db.update(tableName, cValues, whereString(), null);
 
             if(rows > 0) {

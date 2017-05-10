@@ -23,8 +23,8 @@ public class Select extends QueryType {
 
     }
 
-    public static <T extends DaoModel> QueryTransaction<T> from(Class<T> T) {
-        return new QueryTransaction<T>(T, new Select());
+    public static <T extends DaoModel> SelectQueryTransaction<T> from(Class<T> T) {
+        return new SelectQueryTransaction<T>(T, new Select());
     }
 
     @Override
