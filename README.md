@@ -1,5 +1,5 @@
 # ReflectionDao
-SQLite library for android using reflection. The central ideia is to simplify the creation of DAO classes, and no need for complex configurations.
+SQLite library for android using reflection. The central ideia is to simplify the creation of DAO classes, and **no need for complex configurations**.
 
 # How to use
 
@@ -7,7 +7,7 @@ Clone and import as a new module dependance.
 Here is some example of DAO classes used on the examples below:
 
 ```java
-public class Person extends DaoAbstractModel {
+public class Person extends DaoModel {
 
     @PrimaryKey
     public Integer rg;//need to be object not primitive
@@ -15,6 +15,7 @@ public class Person extends DaoAbstractModel {
     public Integer age;
     @TableDepedency("rgPerson")
     public List<Address> addresses;
+    public Double currency;
     
     public void addAddress(Address address) {
         if(addresses == null)
@@ -24,7 +25,7 @@ public class Person extends DaoAbstractModel {
     }
 }
 
-public class Address extends DaoAbstractModel {
+public class Address extends DaoModel {
 
     public Integer rgPerson;
     public String stringAddress;
@@ -57,13 +58,14 @@ Finally on your SQLiteOpenHelper class, you can use these example to create and 
 
 # Usage examples
 
-Here some code using the lib:
+You can use the lib directly from the model class or using Query Classes. Here is some examples:
+
 ```java
     Person person1 = new Person();
     person1.rg = 1;
     person1.name = Paulo;
     person1.age = 16;
-    person1.save(); //creates or update the Person with rg = 1
+    person1.insert(); //creates or update the Person with rg = 1
     
     Address address1 = new Address();
     address1.stringAddress = "somewhere";
@@ -72,25 +74,46 @@ Here some code using the lib:
    
     ...
     
-    Person person2 = (Person) ReflectionDatabaseQuery.get(Person.class, new DataBaseQueryBuilder().where("rg",1, DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL));
-    System.out.println(person2.addresses.get(0).stringAddress); //will print "somewhere"
-    
+    person1.delete(); //delete the person1 and every address with rgPerson = person1.rg
+```
+Here is how you can `Insert`, `InsertMany`, `Select`, `Update` and `Delete` from tables not models:
+
+```java
+    Person person1 = Insert.into(Person.class)
+                           .set("rg", 1)
+                           .set("name", "Paulo")
+                           .set("age", "Paulo")
+                           .executeForFirst();
+                    
+    ArrayList<Address> addresses = Select.from(Address.class)
+                                         .where("rgPerson", 1, WHERE_COMPARATION.EQUAL)
+                                         .orderBy(DaoModel.DEFAULT_ID_COLUMN_NAME, ORDER_BY.ASCENDING)
+                                         .execute();
+                                    
     ...
     
-    ReflectionDatabaseQuery.getAsync(Address.class, new DataBaseQueryBuilder().where("rgPerson",1, DataBaseQueryBuilder.QUERY_ITEM_TYPE.EQUAL), new DataBaseTransactionCallBack() {
-            @Override
-            public void onBack(ArrayList<DaoAbstractModel> models) {
-                ArrayList<Address> addresses = (ArrayList<Address>) models;
-                System.out.println(addresses.get(0).stringAddress); //will print "somewhere"
-            }
-        });
-        
+    Update.table(Person.class)
+          .set("currency",0.0)
+          .where("age", 20, WHERE_COMPARATION.LESS_THAN)
+          .execute();
+          
     ...
-    
-    ReflectionDatabaseQuery.clearTable(Person.class);
-    System.out.println("Count - "+address1.rowCount()); //will print "Count - 0"
+   
+    Delete.from(Person.class)
+          .where("age", 10, WHERE_COMPARATION.MORE_EQUAL)
+          .executeAsync(new AsyncQueryCallback<Person>() {
+                        @Override
+                        public void onBack(List<Person> models) {
+                            //delete completed
+                        }
+                    });
+                    
+     ...
+     
+     //insert many models at once
+     InsertMany.into(Person.class)
+               .addModel(person1, person2, person3)
+               .execute();
 ```
 
-# Important features
-
-You can manipulate your data using the DaoClasse itself or using `ReflectionDatabaseQuery` class where you can `get`, `getAll`, `getAsync`, `saveAll`, `delete`, `deleteAsync`, `deleteAll`, `updateAll` and `clearTable`. This you cant learn how to use on Repository Wiki.
+Every action is type safe and can throw `ColumnNotFoundException` or `InsertIdNotFoundException` when some column is not found on DaoModel, or when you try to insert some model with identification = null.
