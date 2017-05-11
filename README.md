@@ -9,9 +9,6 @@ First add on you project\`s build.gradle :
 allprojects {
     repositories {
         jcenter()
-        maven {
-            url "https://dl.bintray.com/joaomarra/ReflectionAndroidDao/"
-        }
     }
 }
 ```
