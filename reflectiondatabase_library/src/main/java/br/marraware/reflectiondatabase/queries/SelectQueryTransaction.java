@@ -86,20 +86,23 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
             T exampleModel = models.get(0);
             HashMap<Class<? extends DaoModel>,String> dependecies = exampleModel.getDepedencyTables();
             ArrayList<Field> fields = exampleModel.getDependecyValues();
+            Class type;
             if(dependecies.size() > 0) {
                 String fieldString;
                 for(T model : models) {
                     for(Field field : fields) {
-                        fieldString = dependecies.get(field.getType());
 
                         try {
                             if (DaoModel.class.isAssignableFrom(field.getType())) {
+                                fieldString = dependecies.get(field.getType());
                                 field.set(model,Select.from((Class<? extends DaoModel>)field.getType())
                                         .where(fieldString,model.identifierValue(),WHERE_COMPARATION.EQUAL)
                                         .executeForFirst());
                             } else if (List.class.isAssignableFrom(field.getType())) {
+                                type = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                                fieldString = dependecies.get(type);
                                 field.set(model,Select
-                                        .from((Class<? extends DaoModel>)((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0])
+                                        .from((Class<? extends DaoModel>)type)
                                         .where(fieldString,model.identifierValue(),WHERE_COMPARATION.EQUAL)
                                         .execute());
                             }
