@@ -69,7 +69,8 @@ public abstract class QueryTransaction<T extends DaoModel> {
         if(cursor != null)
             models = abstractPostExecute(cursor);
 
-        postExecute(models);
+        if(models != null)
+            postExecute(models);
 
         Log.d("QueryTransaction","BENCHMARK - Query:"+type.getClass().getSimpleName()+" end:"+(System.currentTimeMillis() - now));
         return models;
