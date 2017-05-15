@@ -1,9 +1,25 @@
 # ReflectionDao
 SQLite library for android using reflection. The central ideia is to simplify the creation of DAO classes, and **no need for complex configurations**.
 
+# Add to project
+
+First add on you project\`s build.gradle :
+
+```
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+```
+
+Now add on your app module\`s build.gradle dependecy:
+```
+compile 'br.marraware:reflectiondatabase_library:2.0'
+```
+
 # How to use
 
-Clone and import as a new module dependance.
 Here is some example of DAO classes used on the examples below:
 
 ```java
