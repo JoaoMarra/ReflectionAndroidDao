@@ -15,7 +15,7 @@ allprojects {
 
 Now add on your app module\`s build.gradle dependecy:
 ```
-compile 'br.marraware:reflectiondatabase_library:2.0'
+compile 'br.marraware:reflectiondatabase_library:2.3'
 ```
 
 # How to use
