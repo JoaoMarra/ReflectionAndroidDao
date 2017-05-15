@@ -4,6 +4,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.lang.reflect.Constructor;
+
 import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 import br.marraware.reflectiondatabase.exception.QueryException;
 import br.marraware.reflectiondatabase.model.DaoModel;

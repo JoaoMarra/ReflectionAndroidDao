@@ -33,7 +33,7 @@ public abstract class QueryTransaction<T extends DaoModel> {
 
     protected abstract Cursor preExecute() throws QueryException;
 
-    private ArrayList<T> postExecute(Cursor cursor) {
+    private ArrayList<T> abstractPostExecute(Cursor cursor) {
         ArrayList<T> models = null;
         if(cursor != null) {
             try {
@@ -55,6 +55,10 @@ public abstract class QueryTransaction<T extends DaoModel> {
         return models;
     }
 
+    public void postExecute(ArrayList<T> models) {
+
+    }
+
     public ArrayList<T> execute() throws QueryException {
 
         long now = System.currentTimeMillis();
@@ -63,7 +67,9 @@ public abstract class QueryTransaction<T extends DaoModel> {
 
         ArrayList<T> models = null;
         if(cursor != null)
-            models = postExecute(cursor);
+            models = abstractPostExecute(cursor);
+
+        postExecute(models);
 
         Log.d("QueryTransaction","BENCHMARK - Query:"+type.getClass().getSimpleName()+" end:"+(System.currentTimeMillis() - now));
         return models;

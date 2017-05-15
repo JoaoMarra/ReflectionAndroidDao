@@ -2,6 +2,13 @@ package br.marraware.reflectiondatabase.queries;
 
 import android.database.Cursor;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import br.marraware.reflectiondatabase.exception.ColumnNotFoundException;
 import br.marraware.reflectiondatabase.exception.QueryException;
 import br.marraware.reflectiondatabase.model.DaoModel;
@@ -71,5 +78,38 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
         }
 
         return type.execute(modelClass,newOrderBy,limit);
+    }
+
+    @Override
+    public void postExecute(ArrayList<T> models) {
+        if(models.size() > 0) {
+            T exampleModel = models.get(0);
+            HashMap<Class<? extends DaoModel>,String> dependecies = exampleModel.getDepedencyTables();
+            ArrayList<Field> fields = exampleModel.getDependecyValues();
+            if(dependecies.size() > 0) {
+                String fieldString;
+                for(T model : models) {
+                    for(Field field : fields) {
+                        fieldString = dependecies.get(field.getType());
+
+                        try {
+                            if (DaoModel.class.isAssignableFrom(field.getType())) {
+                                field.set(model,Select.from((Class<? extends DaoModel>)field.getType())
+                                        .where(fieldString,model.identifierValue(),WHERE_COMPARATION.EQUAL)
+                                        .executeForFirst());
+                            } else if (List.class.isAssignableFrom(field.getType())) {
+                                field.set(model,Select
+                                        .from((Class<? extends DaoModel>)((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0])
+                                        .where(fieldString,model.identifierValue(),WHERE_COMPARATION.EQUAL)
+                                        .execute());
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
     }
 }
