@@ -48,7 +48,7 @@ public class Delete extends QueryType {
             Constructor<T> constructor = modelClass.getConstructor();
             T model = constructor.newInstance();
 
-            if (cursor != null) {
+            if (cursor != null && cursor.getCount() > 0) {
                 StringBuilder stringId = new StringBuilder();
                 int index;
                 int type;
@@ -99,30 +99,6 @@ public class Delete extends QueryType {
                 }
 
             }
-
-/*
-            ArrayList<T> models = null;
-            if (cursor != null) {
-                try {
-                    Constructor<T> constructor = modelClass.getConstructor();
-                    T model;
-                    if (cursor.moveToFirst()) {
-                        models = new ArrayList();
-                        while (!cursor.isAfterLast()) {
-                            model = constructor.newInstance();
-                            model.configureWithCursor(cursor);
-                            models.add(model);
-                            cursor.moveToNext();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            if (models != null) {
-                for (T model : models)
-                    model.delete();
-            }*/
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
