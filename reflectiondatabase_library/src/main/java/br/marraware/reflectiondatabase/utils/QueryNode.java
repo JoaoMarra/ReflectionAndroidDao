@@ -20,6 +20,11 @@ public class QueryNode {
 
     @Override
     public String toString() {
-        return " "+column+" "+comparation+" "+(value instanceof String?"\""+value+"\"":value);
+        Object valueObj = value;
+        if(value instanceof Boolean) {
+            Boolean valueBol = (Boolean) value;
+            valueObj = (valueBol?1:0);
+        }
+        return " "+column+" "+comparation+" "+(valueObj instanceof String?"\""+valueObj+"\"":valueObj);
     }
 }

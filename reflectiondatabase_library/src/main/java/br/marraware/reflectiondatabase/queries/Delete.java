@@ -39,8 +39,6 @@ public class Delete extends QueryType {
             SQLiteDatabase db = ReflectionDatabaseManager.db();
 
             String where = whereString();
-            Log.d("RelfectionDataBase", "DELETE - where" + where);
-
             String rawQuery = "select * from " + DaoModel.tableName(modelClass) +
                     (where != null && where.length() > 0 ? " where" + where : "");
             Cursor cursor = db.rawQuery(rawQuery, null);

@@ -89,7 +89,7 @@ public class Update extends QueryType {
 
             if(rows > 0) {
                 String where = whereString();
-                return db.rawQuery("select * from " + tableName + (where != null && where.length() > 0?" where"+where:""), null);
+                return db.rawQuery("select * from " + tableName + (where != null && where.length() > 0?" where not"+where:""), null);
             }
         } catch (Exception e) {
             e.printStackTrace();
