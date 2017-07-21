@@ -40,6 +40,8 @@ public abstract class DaoModel {
 
 
     public static boolean checkColumn(Class modelClass, String column) throws ColumnNotFoundException {
+        if(column.compareTo(DEFAULT_ID_COLUMN_NAME) == 0)
+            return true;
         try {
             Field field = modelClass.getField(column);
 
@@ -242,7 +244,7 @@ public abstract class DaoModel {
                 } else if (type.isInstance(new Long(0))) {
                     values.put(fields[i].getName(), (Long) fields[i].get(this));
                 } else if (type.isInstance(new Boolean(true))) {
-                    if (fields[i].getBoolean(this))
+                    if (Boolean.TRUE.equals(fields[i].get(this)))
                         values.put(fields[i].getName(), 1);
                     else
                         values.put(fields[i].getName(), 0);
