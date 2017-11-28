@@ -61,7 +61,7 @@ public final class ReflectionDatabaseManager{
                 type = fields[i].getType();
                 typeString = null;
                 if(type.isInstance(new String())) {
-                    typeString = "varchar(255)";
+                    typeString = "text";
                 }
                 else if(type.isInstance(new Integer(0))) {
                     typeString = "int";

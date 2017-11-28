@@ -9,4 +9,5 @@ import br.marraware.reflectiondatabase.model.DaoModel;
 public class TestModel extends DaoModel {
 
     public Boolean boleano;
+    public String string;
 }

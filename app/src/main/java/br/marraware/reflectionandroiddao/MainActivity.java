@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
         final TestModel model = new TestModel();
         model.boleano = true;
-
+        String string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In maximus nisi eu turpis tempus, ac fringilla neque finibus. Praesent ultricies metus sed est venenatis, ac eleifend mi rhoncus. Duis sit amet consectetur urna. Morbi ut porttitor orci, eget condimentum massa. Sed a ullamcorper ante, quis egestas dui. Praesent imperdiet, magna at auctor posuere, magna arcu eleifend elit, quis maximus augue magna a diam. Mauris in rutrum enim, a dictum diam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed blandit odio a finibus volutpat. Nam efficitur non ante sed dictum. Duis ultrices fringilla nibh et condimentum. Donec porta. FIM";
+        model.string = string;
         model.insert();
 
         try {
@@ -38,6 +39,15 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.e("SELECT","NOT Found");
             }
+            TestModel m = Select.from(TestModel.class)
+                    .where("string",string, WHERE_COMPARATION.EQUAL)
+                    .executeForFirst();
+            if(m != null) {
+                Log.e("SELECT","Found - "+m.string);
+            } else {
+                Log.e("SELECT","NOT Found");
+            }
+
             Update.table(TestModel.class)
                     .set("boleano",false)
                     .where("boleano",true,WHERE_COMPARATION.EQUAL)
