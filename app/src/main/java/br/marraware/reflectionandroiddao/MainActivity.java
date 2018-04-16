@@ -30,6 +30,13 @@ public class MainActivity extends AppCompatActivity {
         model.string = string;
         model.insert();
 
+        final TestModel model2 = new TestModel();
+        model2.boleano = true;
+        model2.string = "model 2";
+        model2.insert();
+        model2.string = "modified";
+        model2.insert();
+
         try {
             ArrayList<TestModel> models = Select.from(TestModel.class)
                     .where("boleano",true, WHERE_COMPARATION.EQUAL)

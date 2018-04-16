@@ -70,7 +70,11 @@ public final class ReflectionDatabaseManager{
                 } else if(type.isInstance(new Double(0))) {
                     typeString = "double";
                 } else if(type.isInstance(new Long(0))) {
-                    typeString = "bigint";
+                    if(!setKey && fields[i].isAnnotationPresent(PrimaryKey.class)) {
+                        typeString = "INTEGER";
+                    } else {
+                        typeString = "bigint";
+                    }
                 } else if(type.isInstance(new Boolean(true))) {
                     typeString = "int";
                 } else if(type.isInstance(new Date())) {

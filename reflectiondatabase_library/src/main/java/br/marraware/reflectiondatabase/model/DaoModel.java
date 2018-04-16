@@ -230,6 +230,7 @@ public abstract class DaoModel {
         Field[] fields = getFields();
         Class type;
         boolean getKey = false;
+        int keyIndex = -1;
         try {
             for (int i = 0; i < fields.length; i++) {
                 type = fields[i].getType();
@@ -251,8 +252,9 @@ public abstract class DaoModel {
                 } else if (type.isInstance(new Date())) {
                     values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
                 }
-                if(fields[i].isAnnotationPresent(PrimaryKey.class)) {
+                if (fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     getKey = true;
+                    keyIndex = i;
                 }
             }
             if(!getKey) {
@@ -264,6 +266,10 @@ public abstract class DaoModel {
             if(!getKey) {
                 if((Long)identifierValue() == -1) {
                     setDefaultIdentifier(id);
+                }
+            } else if(keyIndex != -1) {
+                if (fields[keyIndex].get(this) == null) {
+                    fields[keyIndex].set(this, id);
                 }
             }
 
