@@ -300,10 +300,10 @@ public abstract class DaoModel {
                 } else if(type.isInstance(new Long(0))) {
                     values.put(fields[i].getName(), (Long) fields[i].get(this));
                 } else if(type.isInstance(new Boolean(true))) {
-                    if(fields[i].getBoolean(this))
-                        values.put(fields[i].getName(),1);
+                    if (Boolean.TRUE.equals(fields[i].get(this)))
+                        values.put(fields[i].getName(), 1);
                     else
-                        values.put(fields[i].getName(),0);
+                        values.put(fields[i].getName(), 0);
                 }  else if(type.isInstance(new Date())) {
                     dateString = DaoHelper.dateToString((Date) fields[i].get(this));
                     if(dateString !=  null)
