@@ -273,7 +273,7 @@ public abstract class DaoModel {
                 }
             }
 
-            insertDependecies(identifierValue());
+            insertDependecies(identifierValue(), true);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -315,7 +315,7 @@ public abstract class DaoModel {
             Object identifier = identifierValue();
             db.update(tableName(this.getClass()),values, identifierColumn()+"=?", new String[]{""+identifier});
 
-            insertDependecies(identifier);
+            insertDependecies(identifier, false);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -347,7 +347,10 @@ public abstract class DaoModel {
         }
     }
 
-    public void insertDependecies(Object idValue) {
+    public void insertDependecies(Object idValue, boolean deleteBefore) {
+        if(deleteBefore)
+            deleteDependecies();
+
         ArrayList<Field> depedencies = getDependecyValues();
         DaoModel model;
         ArrayList<DaoModel> modelList;

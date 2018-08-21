@@ -24,65 +24,41 @@ public class MainActivity extends AppCompatActivity {
 
         ReflectionDatabaseManager.initDataBase(DatabaseHelper.createBase(this));
 
-        final TestModel model = new TestModel();
-        model.boleano = true;
-        String string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In maximus nisi eu turpis tempus, ac fringilla neque finibus. Praesent ultricies metus sed est venenatis, ac eleifend mi rhoncus. Duis sit amet consectetur urna. Morbi ut porttitor orci, eget condimentum massa. Sed a ullamcorper ante, quis egestas dui. Praesent imperdiet, magna at auctor posuere, magna arcu eleifend elit, quis maximus augue magna a diam. Mauris in rutrum enim, a dictum diam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed blandit odio a finibus volutpat. Nam efficitur non ante sed dictum. Duis ultrices fringilla nibh et condimentum. Donec porta. FIM";
-        model.string = string;
+        TestModel model = new TestModel();
+        TestModelDependent dependent = new TestModelDependent();
+        dependent.dependentName = "dependente Juan";
+
+        model.chave = 1L;
+        model.string = "Juan model";
+        model.dependent = dependent;
+
         model.insert();
 
-        final TestModel model2 = new TestModel();
-        model2.boleano = true;
-        model2.string = "model 2";
-        model2.insert();
-        model2.string = "modified";
-        model2.insert();
-
         try {
-            ArrayList<TestModel> models = Select.from(TestModel.class)
-                    .where("boleano",true, WHERE_COMPARATION.EQUAL)
-                    .execute();
-            if(models != null) {
-                Log.e("SELECT","Found - "+models.size());
-            } else {
-                Log.e("SELECT","NOT Found");
-            }
-            TestModel m = Select.from(TestModel.class)
-                    .where("string",string, WHERE_COMPARATION.EQUAL)
+            TestModel model1 = Select.from(TestModel.class)
                     .executeForFirst();
-            if(m != null) {
-                Log.e("SELECT","Found - "+m.string);
-            } else {
-                Log.e("SELECT","NOT Found");
-            }
 
-            Update.table(TestModel.class)
-                    .set("boleano",false)
-                    .where("boleano",true,WHERE_COMPARATION.EQUAL)
-                    .executeAsync(new AsyncQueryCallback<TestModel>() {
-                        @Override
-                        public void onBack(List<TestModel> models) {
-                            if(models != null) {
-                                Log.e("UPDATE","Found - "+models.size());
-                            } else {
-                                Log.e("UPDATE","NOT Found");
-                            }
-                            try {
-                                ArrayList<TestModel> mdls = Select.from(TestModel.class)
-                                        .where("boleano",false, WHERE_COMPARATION.EQUAL)
-                                        .execute();
-                                if(mdls != null) {
-                                    Log.e("SELECT 2","Found - "+mdls.size());
-                                } else {
-                                    Log.e("SELECT 2","NOT Found");
-                                }
-                                Delete.from(TestModel.class).execute();
-                            } catch (QueryException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-        } catch (ColumnNotFoundException e) {
-            e.printStackTrace();
+            Log.e("SELECT","Found - "+model1.string);
+            Log.e("SELECT","Found - D : "+model1.dependent.dependentName);
+
+            model = new TestModel();
+            dependent = new TestModelDependent();
+            dependent.dependentName = "dependente Juan editado";
+
+            model.chave = 1L;
+            model.string = "Juan editado";
+            model.dependent = dependent;
+
+            model.update();
+
+            ArrayList<TestModelDependent> dependents = Select.from(TestModelDependent.class).execute();
+
+            Log.e("SELECT DEPENDENT","Found - "+dependents.size());
+            Log.e("SELECT DEPENDENT","Found - N : "+dependents.get(0).dependentName);
+
+            Delete.from(TestModel.class).execute();
+            Delete.from(TestModelDependent.class).execute();
+
         } catch (QueryException e) {
             e.printStackTrace();
         }

@@ -12,7 +12,7 @@ import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int SCHEMA_VERSION = 2;
+    private static final int SCHEMA_VERSION = 3;
 
     private DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -26,11 +26,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         ReflectionDatabaseManager.createTable(TestModel.class,db);
+        ReflectionDatabaseManager.createTable(TestModelDependent.class,db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         ReflectionDatabaseManager.dropTable(TestModel.class,db);
+        ReflectionDatabaseManager.dropTable(TestModelDependent.class,db);
         onCreate(db);
     }
 }
