@@ -261,7 +261,7 @@ public abstract class DaoModel {
                 if((Long)identifierValue() != -1)
                     values.put(identifierColumn(), (Long)identifierValue());
             }
-            long id = db.insertWithOnConflict(tableName(this.getClass()), null, values,CONFLICT_REPLACE);
+            long id = db.insertWithOnConflict(tableName(this.getClass()), null, values,insertConflictAlgorithm());
 
             if(!getKey) {
                 if((Long)identifierValue() == -1) {
@@ -313,7 +313,7 @@ public abstract class DaoModel {
                 }
             }
             Object identifier = identifierValue();
-            db.update(tableName(this.getClass()),values, identifierColumn()+"=?", new String[]{""+identifier});
+            db.updateWithOnConflict(tableName(this.getClass()),values, identifierColumn()+"=?", new String[]{""+identifier}, updateConflictAlgorithm());
 
             insertDependecies(identifier, false);
         } catch (Exception e){
@@ -389,5 +389,13 @@ public abstract class DaoModel {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
         Cursor cursor = db.rawQuery("select * from "+tableName(modelClass), null);
         return cursor.getCount();
+    }
+
+    protected int insertConflictAlgorithm() {
+        return CONFLICT_REPLACE;
+    }
+
+    protected int updateConflictAlgorithm() {
+        return CONFLICT_REPLACE;
     }
 }
