@@ -27,6 +27,6 @@ public class InsertManyQueryTransaction<T extends DaoModel> extends QueryTransac
 
     @Override
     protected Cursor preExecute() throws QueryException {
-        return type.execute(modelClass, null, -1);
+        return type.execute(modelClass, null, -1, -1);
     }
 }

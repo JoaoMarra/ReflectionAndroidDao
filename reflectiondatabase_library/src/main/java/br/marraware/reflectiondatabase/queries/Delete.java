@@ -34,7 +34,7 @@ public class Delete extends QueryType {
     }
 
     @Override
-    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws QueryException {
+    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws QueryException {
         try {
             SQLiteDatabase db = ReflectionDatabaseManager.db();
 

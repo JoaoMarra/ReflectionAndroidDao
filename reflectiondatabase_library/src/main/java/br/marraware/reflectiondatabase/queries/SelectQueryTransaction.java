@@ -23,11 +23,13 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
 
     private String orderBy;
     private int limit;
+    private int offset;
 
     public SelectQueryTransaction(Class<T> T, Select type) {
         super(T, type);
         orderBy = null;
         limit = -1;
+        offset = -1;
     }
 
     @Override
@@ -61,6 +63,15 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
         return this;
     }
 
+    public SelectQueryTransaction<T> offset(int offset) {
+        if(type instanceof Insert || type instanceof Update || type instanceof InsertMany)
+            return this;
+
+        this.offset = offset;
+
+        return this;
+    }
+
     public SelectQueryTransaction<T> limit(int limit) {
         if(type instanceof Insert || type instanceof Update || type instanceof InsertMany)
             return this;
@@ -77,7 +88,7 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
             newOrderBy = " order by "+orderBy;
         }
 
-        return type.execute(modelClass,newOrderBy,limit);
+        return type.execute(modelClass,newOrderBy,limit,offset);
     }
 
     @Override

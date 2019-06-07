@@ -58,5 +58,5 @@ public abstract class QueryType {
         return builder.toString();
     }
 
-    public abstract <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws QueryException;
+    public abstract <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws QueryException;
 }

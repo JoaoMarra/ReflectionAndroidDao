@@ -30,7 +30,7 @@ public class Select extends QueryType {
     }
 
     @Override
-    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws QueryException {
+    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws QueryException {
 
         SQLiteDatabase db = ReflectionDatabaseManager.db();
 
@@ -39,7 +39,8 @@ public class Select extends QueryType {
         String rawQuery = "select * from "+DaoModel.tableName(modelClass)+
                 (where != null && where.length() > 0?" where"+where:"")+
                 (orderBy != null?orderBy:"")+
-                (limit != -1?" limit "+limit:"");
+                (limit != -1?" limit "+limit:"")+
+                (offset != -1?" offset "+offset:"");
 
         Log.d("RelfectionDataBase","SELECT - "+rawQuery);
 

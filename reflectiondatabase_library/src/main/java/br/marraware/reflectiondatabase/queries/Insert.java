@@ -38,7 +38,7 @@ public class Insert extends QueryType {
     }
 
     @Override
-    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit) throws InsertIdNotFoundException {
+    public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws InsertIdNotFoundException {
 
         try {
             Constructor<T> constructor = modelClass.getConstructor();
