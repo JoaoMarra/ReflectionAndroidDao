@@ -3,10 +3,12 @@ package br.marraware.reflectiondatabase.queries;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import br.marraware.reflectiondatabase.exception.ColumnNotFoundException;
 import br.marraware.reflectiondatabase.exception.QueryException;
+import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.NODE_TREE_COMPARATION;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
@@ -30,6 +32,46 @@ public abstract class QueryType {
     public void where(Class<? extends DaoModel> modelClass, String column, Object value, WHERE_COMPARATION comparation) throws ColumnNotFoundException {
         if(DaoModel.checkColumn(modelClass, column)) {
             nodes.add(new QueryNode(column,value,comparation));
+        }
+    }
+
+    public void whereIn(Class<? extends DaoModel> modelClass, String column, Object... values) throws ColumnNotFoundException {
+        if(DaoModel.checkColumn(modelClass, column)) {
+            StringBuilder inString = new StringBuilder();
+            inString.append("(");
+            for(int i=0; i < values.length; i++) {
+                if(values[i] instanceof String) {
+                    inString.append("'"+values[i]+"'");
+                } else if(values[i] instanceof Date) {
+                    inString.append("'"+ DaoHelper.dateToString((Date) values[i]) +"'");
+                } else {
+                    inString.append(values[i]);
+                }
+                if(i < values.length-1)
+                    inString.append(",");
+            }
+            inString.append(")");
+            nodes.add(new QueryNode(column,inString,WHERE_COMPARATION.IN));
+        }
+    }
+
+    public void whereNotIn(Class<? extends DaoModel> modelClass, String column, Object... values) throws ColumnNotFoundException {
+        if(DaoModel.checkColumn(modelClass, column)) {
+            StringBuilder inString = new StringBuilder();
+            inString.append("(");
+            for(int i=0; i < values.length; i++) {
+                if(values[i] instanceof String) {
+                    inString.append("'"+values[i]+"'");
+                } else if(values[i] instanceof Date) {
+                    inString.append("'"+ DaoHelper.dateToString((Date) values[i]) +"'");
+                } else {
+                    inString.append(values[i]);
+                }
+                if(i < values.length-1)
+                    inString.append(",");
+            }
+            inString.append(")");
+            nodes.add(new QueryNode(column,inString,WHERE_COMPARATION.NOT_IN));
         }
     }
 

@@ -74,4 +74,14 @@ public abstract class QueryTransactionWhere<T extends DaoModel> extends QueryTra
 
         return this;
     }
+
+    public QueryTransactionWhere<T> whereIn(String column, Object... values) throws ColumnNotFoundException {
+        type.whereIn(modelClass, column, values);
+        return this;
+    }
+
+    public QueryTransactionWhere<T> whereNotIn(String column, Object... values) throws ColumnNotFoundException {
+        type.whereNotIn(modelClass, column, values);
+        return this;
+    }
 }

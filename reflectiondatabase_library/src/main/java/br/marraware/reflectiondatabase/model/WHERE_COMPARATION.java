@@ -13,7 +13,9 @@ public enum WHERE_COMPARATION {
     MORE_THAN(">"),
     MORE_EQUAL(">="),
     LESS_THAN("<"),
-    LESS_EQUAL("<=");
+    LESS_EQUAL("<="),
+    IN("IN"),
+    NOT_IN("NOT IN");
 
     private String name;
 
