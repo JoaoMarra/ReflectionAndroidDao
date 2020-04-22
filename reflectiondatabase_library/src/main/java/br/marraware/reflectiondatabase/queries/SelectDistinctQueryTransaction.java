@@ -53,6 +53,30 @@ public class SelectDistinctQueryTransaction<T extends DaoModel> extends QueryTra
         return this;
     }
 
+    @Override
+    public SelectDistinctQueryTransaction whereIn(String column, Object... values) throws ColumnNotFoundException {
+        super.whereIn(column, values);
+        return this;
+    }
+
+    @Override
+    public SelectDistinctQueryTransaction whereNotIn(String column, Object... values) throws ColumnNotFoundException {
+        super.whereNotIn(column, values);
+        return this;
+    }
+
+    @Override
+    public SelectDistinctQueryTransaction whereBetween(String column, Object value1, Object value2) throws ColumnNotFoundException {
+        super.whereBetween(column, value1, value2);
+        return this;
+    }
+
+    @Override
+    public SelectDistinctQueryTransaction whereRaw(String query) throws ColumnNotFoundException {
+        super.whereRaw(query);
+        return this;
+    }
+
     public SelectDistinctQueryTransaction orderBy(String column, ORDER_BY order) throws ColumnNotFoundException {
         if(DaoModel.checkColumn(modelClass, column)) {
             String newOrderBy = " "+column+" "+order;

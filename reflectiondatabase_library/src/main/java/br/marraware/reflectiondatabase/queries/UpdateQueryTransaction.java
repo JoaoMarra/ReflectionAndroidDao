@@ -40,6 +40,30 @@ public class UpdateQueryTransaction<T extends DaoModel> extends QueryTransaction
         return this;
     }
 
+    @Override
+    public UpdateQueryTransaction<T> whereIn(String column, Object... values) throws ColumnNotFoundException {
+        super.whereIn(column, values);
+        return this;
+    }
+
+    @Override
+    public UpdateQueryTransaction<T> whereNotIn(String column, Object... values) throws ColumnNotFoundException {
+        super.whereNotIn(column, values);
+        return this;
+    }
+
+    @Override
+    public UpdateQueryTransaction<T> whereBetween(String column, Object value1, Object value2) throws ColumnNotFoundException {
+        super.whereBetween(column, value1, value2);
+        return this;
+    }
+
+    @Override
+    public UpdateQueryTransaction<T> whereRaw(String query) throws ColumnNotFoundException {
+        super.whereRaw(query);
+        return this;
+    }
+
     public UpdateQueryTransaction<T> set(String column, Object value) throws ColumnNotFoundException {
         Update update = (Update) type;
         update.set(column, value, modelClass);
