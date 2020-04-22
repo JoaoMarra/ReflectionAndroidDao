@@ -1,5 +1,10 @@
 package br.marraware.reflectiondatabase.utils;
 
+import android.text.format.DateUtils;
+
+import java.util.Date;
+
+import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
 
 /**
@@ -24,6 +29,8 @@ public class QueryNode {
         if(value instanceof Boolean) {
             Boolean valueBol = (Boolean) value;
             valueObj = (valueBol?1:0);
+        } else if(value instanceof Date) {
+            valueObj = DaoHelper.dateToString((Date) value);
         }
         return " "+column+" "+comparation+" "+(valueObj instanceof String?"\""+valueObj+"\"":valueObj);
     }

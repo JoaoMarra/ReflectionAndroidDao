@@ -78,7 +78,7 @@ public final class ReflectionDatabaseManager{
                 } else if(type.isInstance(new Boolean(true))) {
                     typeString = "int";
                 } else if(type.isInstance(new Date())) {
-                    typeString = "varchar("+DaoHelper.DATE_FORMATE_STRING.length()+")";
+                    typeString = "datetime";
                 }
                 if(!setKey && fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     typeString += " primary key";

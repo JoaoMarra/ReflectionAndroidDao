@@ -84,4 +84,9 @@ public abstract class QueryTransactionWhere<T extends DaoModel> extends QueryTra
         type.whereNotIn(modelClass, column, values);
         return this;
     }
+
+    public QueryTransactionWhere<T> whereBetween(String column, Object value1, Object value2) throws ColumnNotFoundException {
+        type.whereBetween(modelClass, column, value1, value2);
+        return this;
+    }
 }

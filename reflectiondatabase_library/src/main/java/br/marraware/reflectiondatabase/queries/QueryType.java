@@ -13,6 +13,7 @@ import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.NODE_TREE_COMPARATION;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
 import br.marraware.reflectiondatabase.utils.QueryNode;
+import br.marraware.reflectiondatabase.utils.QueryNodeBetween;
 import br.marraware.reflectiondatabase.utils.QueryNodeTree;
 
 /**
@@ -72,6 +73,12 @@ public abstract class QueryType {
             }
             inString.append(")");
             nodes.add(new QueryNode(column,inString,WHERE_COMPARATION.NOT_IN));
+        }
+    }
+
+    public void whereBetween(Class<? extends DaoModel> modelClass, String column, Object value1, Object value2) throws ColumnNotFoundException {
+        if(DaoModel.checkColumn(modelClass, column)) {
+            nodes.add(new QueryNodeBetween(column,value1,value2));
         }
     }
 

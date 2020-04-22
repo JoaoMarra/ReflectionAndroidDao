@@ -32,24 +32,6 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
         offset = -1;
     }
 
-    @Override
-    public SelectQueryTransaction<T> where(String column, Object value, WHERE_COMPARATION comparation) throws ColumnNotFoundException {
-        super.where(column, value, comparation);
-        return this;
-    }
-
-    @Override
-    public SelectQueryTransaction<T> whereAnd(Object[]... columnValueComparation) throws ColumnNotFoundException {
-        super.whereAnd(columnValueComparation);
-        return this;
-    }
-
-    @Override
-    public SelectQueryTransaction<T> whereOr(Object[]... columnValueComparation) throws ColumnNotFoundException {
-        super.whereOr(columnValueComparation);
-        return this;
-    }
-
     public SelectQueryTransaction<T> orderBy(String column, ORDER_BY order) throws ColumnNotFoundException {
         if(DaoModel.checkColumn(modelClass, column)) {
             String newOrderBy = " "+column+" "+order;
