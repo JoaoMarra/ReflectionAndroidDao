@@ -21,4 +21,5 @@ public class TestModel extends DaoModel {
     public Boolean boleano;
     public String string;
     public Date date;
+    public Integer integer;
 }

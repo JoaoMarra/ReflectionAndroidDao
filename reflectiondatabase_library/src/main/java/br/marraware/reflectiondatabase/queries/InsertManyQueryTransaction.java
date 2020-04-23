@@ -29,4 +29,9 @@ public class InsertManyQueryTransaction<T extends DaoModel> extends QueryTransac
     protected Cursor preExecute() throws QueryException {
         return type.execute(modelClass, null, -1, -1);
     }
+
+    public InsertManyQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
 }

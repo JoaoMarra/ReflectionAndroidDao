@@ -34,7 +34,9 @@ public class RawQueryTransaction<T extends DaoModel> extends QueryTransaction {
                     models = new ArrayList<>();
                     while (!cursor.isAfterLast()) {
                         model = new ColumnModel(modelClass, cursor);
-                        models.add(model);
+                        if(model.columCount() > 0) {
+                            models.add(model);
+                        }
                         cursor.moveToNext();
                     }
                 }
@@ -42,6 +44,8 @@ public class RawQueryTransaction<T extends DaoModel> extends QueryTransaction {
                 e.printStackTrace();
             }
         }
+        if(models.size() == 0)
+            models = null;
 
         return models;
     }
@@ -52,5 +56,10 @@ public class RawQueryTransaction<T extends DaoModel> extends QueryTransaction {
         if(models != null && models.size() > 0)
             return models.get(0);
         return null;
+    }
+
+    public RawQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
     }
 }

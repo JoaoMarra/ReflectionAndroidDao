@@ -88,5 +88,10 @@ public abstract class QueryTransaction<T extends DaoModel> {
         task.execute();
     }
 
+    public QueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
+
 
 }

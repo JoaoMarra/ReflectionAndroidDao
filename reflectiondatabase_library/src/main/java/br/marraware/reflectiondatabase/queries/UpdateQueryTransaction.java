@@ -75,4 +75,9 @@ public class UpdateQueryTransaction<T extends DaoModel> extends QueryTransaction
     protected Cursor preExecute() throws QueryException {
         return type.execute(modelClass,null, -1, -1);
     }
+
+    public UpdateQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
 }

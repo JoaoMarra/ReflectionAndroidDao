@@ -82,7 +82,7 @@ public class Insert extends QueryType {
             }
 
             String tableName = DaoModel.tableName(modelClass);
-            long id = db.insertWithOnConflict(tableName, null, cValues,CONFLICT_REPLACE);
+            long id = db.insertWithOnConflict(tableName, null, cValues,conflictType);
 
             return db.rawQuery("select * from " + tableName + " where " + model.identifierColumn()+" = "+(values.containsKey(idColumn)?values.get(idColumn):id), null);
         } catch (Exception e) {

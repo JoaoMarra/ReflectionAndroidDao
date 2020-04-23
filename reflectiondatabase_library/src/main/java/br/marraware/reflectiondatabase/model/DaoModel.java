@@ -17,6 +17,7 @@ import br.marraware.reflectiondatabase.ReflectionDatabaseManager;
 import br.marraware.reflectiondatabase.exception.ColumnNotFoundException;
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_NONE;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 
 /**
@@ -391,11 +392,11 @@ public abstract class DaoModel {
         return cursor.getCount();
     }
 
-    protected int insertConflictAlgorithm() {
+    protected static int insertConflictAlgorithm() {
         return CONFLICT_REPLACE;
     }
 
-    protected int updateConflictAlgorithm() {
-        return CONFLICT_REPLACE;
+    protected static int updateConflictAlgorithm() {
+        return CONFLICT_NONE;
     }
 }

@@ -150,4 +150,9 @@ public class SelectDistinctQueryTransaction<T extends DaoModel> extends QueryTra
         return null;
     }
 
+    public SelectDistinctQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
+
 }

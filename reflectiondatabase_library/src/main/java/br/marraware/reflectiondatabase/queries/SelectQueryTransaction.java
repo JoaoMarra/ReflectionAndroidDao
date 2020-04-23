@@ -150,4 +150,9 @@ public class SelectQueryTransaction<T extends DaoModel> extends QueryTransaction
             }
         }
     }
+
+    public SelectQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
 }

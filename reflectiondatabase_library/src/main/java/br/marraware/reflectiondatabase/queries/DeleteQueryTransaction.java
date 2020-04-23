@@ -19,4 +19,9 @@ public class DeleteQueryTransaction<T extends DaoModel> extends QueryTransaction
     protected Cursor preExecute() throws QueryException {
         return type.execute(modelClass, null, -1, -1);
     }
+
+    public DeleteQueryTransaction<T> setConflictType(int conflictType) {
+        type.setConflictType(conflictType);
+        return this;
+    }
 }

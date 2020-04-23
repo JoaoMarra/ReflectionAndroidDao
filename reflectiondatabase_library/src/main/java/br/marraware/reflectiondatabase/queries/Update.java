@@ -16,6 +16,8 @@ import br.marraware.reflectiondatabase.exception.QueryException;
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoModel;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_NONE;
+
 /**
  * Created by joao_gabriel on 09/05/17.
  */
@@ -85,7 +87,7 @@ public class Update extends QueryType {
 
             String tableName = DaoModel.tableName(modelClass);
             Log.d("RelfectionDataBase","UPDATE - where"+whereString());
-            int rows = db.update(tableName, cValues, whereString(), null);
+            int rows = db.updateWithOnConflict(tableName, cValues, whereString(), null, conflictType);
 
             if(rows > 0) {
                 String where = whereString();

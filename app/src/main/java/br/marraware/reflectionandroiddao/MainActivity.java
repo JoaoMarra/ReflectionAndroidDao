@@ -40,39 +40,32 @@ public class MainActivity extends AppCompatActivity {
         TestModel model = new TestModel();
         model.string = "Juan";
         model.date = now;
+        model.integer = 1;
         model.insert();
         model = new TestModel();
         model.string = "Julio";
         model.date = yesterday;
+        model.integer = 2;
         model.insert();
         model = new TestModel();
         model.string = "Tiago";
         model.date = beforeyesterday;
+        model.integer = 3;
         model.insert();
         model = new TestModel();
         model.string = "Yuri";
         model.date = beforeyesterday;
+        model.integer = 4;
         model.insert();
 
         try {
 
-            ArrayList<TestModel> models = Select.from(TestModel.class).where("date", yesterday,WHERE_COMPARATION.MORE_THAN).execute();
-            Log.e("MainActivity","models more:");
-            for(int i=0; i < models.size(); i++) {
-                Log.e("MainActivity",models.get(i).chave+": "+models.get(i).string);
-            }
-
-            models = Select.from(TestModel.class).where("date", yesterday,WHERE_COMPARATION.LESS_THAN).execute();
-            Log.e("MainActivity","models less:");
-            for(int i=0; i < models.size(); i++) {
-                Log.e("MainActivity",models.get(i).chave+": "+models.get(i).string);
-            }
-
-            models = Select.from(TestModel.class).whereBetween("date", beforeyesterday, yesterday).execute();
-            Log.e("MainActivity","models between:");
-            for(int i=0; i < models.size(); i++) {
-                Log.e("MainActivity",models.get(i).chave+": "+models.get(i).string);
-            }
+            ColumnModel columnModel = RawQuery.query("select sum(integer) as soma from TestModel where string like '%i%'").executeForFirst();
+            Log.e("MainActivity","soma:");
+            if(columnModel != null)
+                Log.e("MainActivity",columnModel.getValue("soma").toString());
+            else
+                Log.e("MainActivity","NULL");
 
             Delete.from(TestModel.class).execute();
 

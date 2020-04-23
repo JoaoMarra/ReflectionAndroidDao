@@ -17,6 +17,8 @@ import br.marraware.reflectiondatabase.utils.QueryNodeBetween;
 import br.marraware.reflectiondatabase.utils.QueryNodeRaw;
 import br.marraware.reflectiondatabase.utils.QueryNodeTree;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
+
 /**
  * Created by joao_gabriel on 09/05/17.
  */
@@ -25,10 +27,12 @@ public abstract class QueryType {
 
     protected ArrayList<QueryNode> nodes;
     protected ArrayList<QueryNodeTree> trees;
+    protected int conflictType;
 
     public QueryType() {
         nodes = new ArrayList<>();
         trees = new ArrayList<>();
+        conflictType = CONFLICT_REPLACE;
     }
 
     public void where(Class<? extends DaoModel> modelClass, String column, Object value, WHERE_COMPARATION comparation) throws ColumnNotFoundException {
@@ -113,4 +117,8 @@ public abstract class QueryType {
     }
 
     public abstract <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws QueryException;
+
+    public void setConflictType(int conflictType) {
+        this.conflictType = conflictType;
+    }
 }
