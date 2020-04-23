@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,23 @@ public abstract class QueryTransaction<T extends DaoModel> {
     public QueryTransaction(Class<T> T, QueryType type) {
         this.modelClass = T;
         this.type = type;
+        if(type instanceof Insert) {
+            try {
+                Constructor<T> constructor = modelClass.getConstructor();
+                T model = constructor.newInstance();
+                type.setConflictType(model.inserConflict());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if(type instanceof Update) {
+            try {
+                Constructor<T> constructor = modelClass.getConstructor();
+                T model = constructor.newInstance();
+                type.setConflictType(model.updateConflict());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     protected abstract Cursor preExecute() throws QueryException;

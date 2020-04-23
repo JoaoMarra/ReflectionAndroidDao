@@ -392,11 +392,19 @@ public abstract class DaoModel {
         return cursor.getCount();
     }
 
-    protected static int insertConflictAlgorithm() {
+    protected int insertConflictAlgorithm() {
         return CONFLICT_REPLACE;
     }
 
-    protected static int updateConflictAlgorithm() {
+    protected int updateConflictAlgorithm() {
         return CONFLICT_NONE;
+    }
+
+    public final int inserConflict() {
+        return insertConflictAlgorithm();
+    }
+
+    public final int updateConflict() {
+        return updateConflictAlgorithm();
     }
 }

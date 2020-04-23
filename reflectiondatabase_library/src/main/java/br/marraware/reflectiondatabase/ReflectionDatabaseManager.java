@@ -13,6 +13,7 @@ import java.util.Date;
 import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.DaoModel;
 import br.marraware.reflectiondatabase.model.PrimaryKey;
+import br.marraware.reflectiondatabase.model.Unique;
 
 /**
  * Created by joao_gabriel on 02/05/17.
@@ -83,6 +84,9 @@ public final class ReflectionDatabaseManager{
                 if(!setKey && fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     typeString += " primary key";
                     setKey = true;
+                }
+                if(fields[i].isAnnotationPresent(Unique.class)) {
+                    typeString += " UNIQUE";
                 }
                 if(typeString != null)
                     builder.append("\n"+name+" "+typeString+",");

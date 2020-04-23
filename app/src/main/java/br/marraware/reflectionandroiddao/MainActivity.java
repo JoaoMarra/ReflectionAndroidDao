@@ -16,6 +16,7 @@ import br.marraware.reflectiondatabase.helpers.DaoHelper;
 import br.marraware.reflectiondatabase.model.ColumnModel;
 import br.marraware.reflectiondatabase.model.WHERE_COMPARATION;
 import br.marraware.reflectiondatabase.queries.Delete;
+import br.marraware.reflectiondatabase.queries.Insert;
 import br.marraware.reflectiondatabase.queries.RawQuery;
 import br.marraware.reflectiondatabase.queries.Select;
 import br.marraware.reflectiondatabase.queries.SelectDistinct;
@@ -42,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
         model.date = now;
         model.integer = 1;
         model.insert();
+        Log.e("MainActivity","First - "+model.identifierValue());
+        try {
+            model = Insert.into(TestModel.class).set("string", "Juan").executeForFirst();
+            Log.e("MainActivity","Duplicate - "+model.identifierValue());
+        } catch (QueryException e) {
+            e.printStackTrace();
+        }
         model = new TestModel();
         model.string = "Julio";
         model.date = yesterday;

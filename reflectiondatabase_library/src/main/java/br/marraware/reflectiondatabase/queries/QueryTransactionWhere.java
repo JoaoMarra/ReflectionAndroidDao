@@ -16,23 +16,6 @@ import br.marraware.reflectiondatabase.utils.QueryNode;
 public abstract class QueryTransactionWhere<T extends DaoModel> extends QueryTransaction<T> {
     public QueryTransactionWhere(Class<T> T, QueryType type) {
         super(T, type);
-        if(type instanceof Insert) {
-            try {
-                Method m = T.getMethod("insertConflictAlgorithm");
-                Object o = m.invoke(null);
-                type.setConflictType((int)o);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if(type instanceof Update) {
-            try {
-                Method m = T.getMethod("updateConflictAlgorithm");
-                Object o = m.invoke(null);
-                type.setConflictType((int)o);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public QueryTransactionWhere<T> where(String column, Object value, WHERE_COMPARATION comparation) throws ColumnNotFoundException {
