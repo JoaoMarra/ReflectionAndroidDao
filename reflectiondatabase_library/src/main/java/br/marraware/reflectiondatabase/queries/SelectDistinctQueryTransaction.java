@@ -130,7 +130,9 @@ public class SelectDistinctQueryTransaction<T extends DaoModel> extends QueryTra
                     models = new ArrayList<>();
                     while (!cursor.isAfterLast()) {
                         model = new ColumnModel(modelClass, cursor);
-                        models.add(model);
+                        if(model.columCount() > 0) {
+                            models.add(model);
+                        }
                         cursor.moveToNext();
                     }
                 }
@@ -138,6 +140,8 @@ public class SelectDistinctQueryTransaction<T extends DaoModel> extends QueryTra
                 e.printStackTrace();
             }
         }
+        if(models != null && models.size() == 0)
+            models = null;
 
         return models;
     }
