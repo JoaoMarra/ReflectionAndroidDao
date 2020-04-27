@@ -1,5 +1,8 @@
 package br.marraware.reflectionandroiddao;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 import br.marraware.reflectiondatabase.model.DaoModel;
@@ -30,6 +33,8 @@ public class TestModel extends DaoModel {
     public String string;
     public Date date;
     public Integer integer;
+    public JSONObject jsonObject;
+    public JSONArray jsonArray;
 
     @Override
     protected int insertConflictAlgorithm() {

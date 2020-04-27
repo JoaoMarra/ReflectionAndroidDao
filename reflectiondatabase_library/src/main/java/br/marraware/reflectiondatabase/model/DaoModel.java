@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -119,6 +122,18 @@ public abstract class DaoModel {
                         fields[i].set(this, false);
                 }  else if(type.isInstance(new Date())) {
                     fields[i].set(this, DaoHelper.stringToDate(cursor.getString(index)));
+                } else if (type.isInstance(new JSONObject())) {
+                    String jsonString = cursor.getString(index);
+                    if(jsonString != null) {
+                        JSONObject json = new JSONObject(jsonString);
+                        fields[i].set(this, json);
+                    }
+                } else if (type.isInstance(new JSONArray())) {
+                    String jsonString = cursor.getString(index);
+                    if(jsonString != null) {
+                        JSONArray json = new JSONArray(jsonString);
+                        fields[i].set(this, json);
+                    }
                 }
                 if(fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     getKey = true;
@@ -252,6 +267,18 @@ public abstract class DaoModel {
                         values.put(fields[i].getName(), 0);
                 } else if (type.isInstance(new Date())) {
                     values.put(fields[i].getName(), DaoHelper.dateToString((Date) fields[i].get(this)));
+                } else if (type.isInstance(new JSONObject())) {
+                    JSONObject json = (JSONObject) fields[i].get(this);
+                    if(json != null)
+                        values.put(fields[i].getName(), json.toString());
+                    else
+                        values.putNull(fields[i].getName());
+                } else if (type.isInstance(new JSONArray())) {
+                    JSONArray json = (JSONArray) fields[i].get(this);
+                    if(json != null)
+                        values.put(fields[i].getName(), json.toString());
+                    else
+                        values.putNull(fields[i].getName());
                 }
                 if (fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     getKey = true;
@@ -309,6 +336,18 @@ public abstract class DaoModel {
                     dateString = DaoHelper.dateToString((Date) fields[i].get(this));
                     if(dateString !=  null)
                         values.put(fields[i].getName(), dateString);
+                    else
+                        values.putNull(fields[i].getName());
+                } else if (type.isInstance(new JSONObject())) {
+                    JSONObject json = (JSONObject) fields[i].get(this);
+                    if(json != null)
+                        values.put(fields[i].getName(), json.toString());
+                    else
+                        values.putNull(fields[i].getName());
+                } else if (type.isInstance(new JSONArray())) {
+                    JSONArray json = (JSONArray) fields[i].get(this);
+                    if(json != null)
+                        values.put(fields[i].getName(), json.toString());
                     else
                         values.putNull(fields[i].getName());
                 }

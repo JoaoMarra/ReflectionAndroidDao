@@ -4,6 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,42 +46,41 @@ public class MainActivity extends AppCompatActivity {
         model.string = "Juan";
         model.date = now;
         model.integer = 1;
-        model.insert();
-        Log.e("MainActivity","First - "+model.identifierValue());
         try {
-            model = Insert.into(TestModel.class).set("string", "Juan").executeForFirst();
-            Log.e("MainActivity","Duplicate - "+model.identifierValue());
-        } catch (QueryException e) {
+            model.jsonObject = new JSONObject();
+            model.jsonObject.put("SOMETHING","HERE!");
+            model.jsonArray = new JSONArray();
+            model.jsonArray.put(1);
+            model.jsonArray.put(10);
+            model.jsonArray.put(100);
+            model.jsonArray.put(2312);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        model = new TestModel();
-        model.string = "Julio";
-        model.date = yesterday;
-        model.integer = 2;
-        model.insert();
-        model = new TestModel();
-        model.string = "Tiago";
-        model.date = beforeyesterday;
-        model.integer = 3;
-        model.insert();
-        model = new TestModel();
-        model.string = "Yuri";
-        model.date = beforeyesterday;
-        model.integer = 4;
         model.insert();
 
         try {
 
-            ColumnModel columnModel = RawQuery.query("select sum(integer) as soma from TestModel where string like '%i%'").executeForFirst();
-            Log.e("MainActivity","soma:");
-            if(columnModel != null)
-                Log.e("MainActivity",columnModel.getValue("soma").toString());
-            else
-                Log.e("MainActivity","NULL");
+            TestModel firstModel = Select.from(TestModel.class).executeForFirst();
+            Log.e("MainActivity","OBJECT:");
+            Log.e("MainActivity",firstModel.jsonObject.toString(2));
+            Log.e("MainActivity","Array:");
+            Log.e("MainActivity",firstModel.jsonArray.toString(2));
+
+
+            firstModel.jsonObject.put("SOMETHING 2",5);
+            firstModel.jsonArray.put(999);
+            firstModel.update();
+
+            firstModel = Select.from(TestModel.class).executeForFirst();
+            Log.e("MainActivity","[2]OBJECT:");
+            Log.e("MainActivity",firstModel.jsonObject.toString(2));
+            Log.e("MainActivity","[2]Array:");
+            Log.e("MainActivity",firstModel.jsonArray.toString(2));
 
             Delete.from(TestModel.class).execute();
 
-        } catch (QueryException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

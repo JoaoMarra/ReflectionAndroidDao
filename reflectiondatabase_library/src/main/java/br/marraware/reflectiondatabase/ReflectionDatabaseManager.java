@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -80,6 +83,10 @@ public final class ReflectionDatabaseManager{
                     typeString = "int";
                 } else if(type.isInstance(new Date())) {
                     typeString = "datetime";
+                } else if (type.isInstance(new JSONObject())) {
+                    typeString = "text";
+                } else if (type.isInstance(new JSONArray())) {
+                    typeString = "text";
                 }
                 if(!setKey && fields[i].isAnnotationPresent(PrimaryKey.class)) {
                     typeString += " primary key";
