@@ -64,6 +64,18 @@ public class UpdateQueryTransaction<T extends DaoModel> extends QueryTransaction
         return this;
     }
 
+    @Override
+    public UpdateQueryTransaction<T> whereJSONObject(String column, String key, Object value) throws ColumnNotFoundException {
+        super.whereJSONObject(column, key, value);
+        return this;
+    }
+
+    @Override
+    public UpdateQueryTransaction<T> whereJSONArray(String column, Object value) throws ColumnNotFoundException {
+        super.whereJSONArray(column, value);
+        return this;
+    }
+
     public UpdateQueryTransaction<T> set(String column, Object value) throws ColumnNotFoundException {
         Update update = (Update) type;
         update.set(column, value, modelClass);

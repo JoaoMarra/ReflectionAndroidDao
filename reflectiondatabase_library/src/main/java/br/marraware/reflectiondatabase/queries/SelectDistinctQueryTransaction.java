@@ -77,6 +77,18 @@ public class SelectDistinctQueryTransaction<T extends DaoModel> extends QueryTra
         return this;
     }
 
+    @Override
+    public SelectDistinctQueryTransaction<T> whereJSONObject(String column, String key, Object value) throws ColumnNotFoundException {
+        super.whereJSONObject(column, key, value);
+        return this;
+    }
+
+    @Override
+    public SelectDistinctQueryTransaction<T> whereJSONArray(String column, Object value) throws ColumnNotFoundException {
+        super.whereJSONArray(column, value);
+        return this;
+    }
+
     public SelectDistinctQueryTransaction orderBy(String column, ORDER_BY order) throws ColumnNotFoundException {
         if(DaoModel.checkColumn(modelClass, column)) {
             String newOrderBy = " "+column+" "+order;

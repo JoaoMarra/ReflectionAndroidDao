@@ -87,8 +87,32 @@ public abstract class QueryType {
         }
     }
 
-    public void whereRaw(Class<? extends DaoModel> modelClass, String query) throws ColumnNotFoundException {
+    public void whereRaw(Class<? extends DaoModel> modelClass, String query) {
         nodes.add(new QueryNodeRaw(query));
+    }
+
+    public void whereJSONObject(Class<? extends DaoModel> modelClass, String column, String key, Object value) throws ColumnNotFoundException {
+        if(DaoModel.checkColumn(modelClass, column)) {
+            String query = "'%\""+key+"\":";
+            if(value instanceof String)
+                query += "\""+value.toString()+"\"";
+            else
+                query += value.toString();
+            query += "%'";
+            nodes.add(new QueryNodeRaw(column+" like "+query));
+        }
+    }
+
+    public void whereJSONArray(Class<? extends DaoModel> modelClass, String column, Object value) throws ColumnNotFoundException {
+        if(DaoModel.checkColumn(modelClass, column)) {
+            String query = "'%";
+            if(value instanceof String)
+                query += "\""+value.toString()+"\"";
+            else
+                query += value.toString();
+            query += "%'";
+            nodes.add(new QueryNodeRaw(column+" like "+query));
+        }
     }
 
     public void whereTree(NODE_TREE_COMPARATION comparation, QueryNode... nodes) {

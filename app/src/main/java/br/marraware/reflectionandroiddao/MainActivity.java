@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
             model.jsonObject.put("SOMETHING","HERE!");
             model.jsonArray = new JSONArray();
             model.jsonArray.put(1);
-            model.jsonArray.put(10);
-            model.jsonArray.put(100);
+            model.jsonArray.put(true);
+            model.jsonArray.put("string");
             model.jsonArray.put(2312);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            TestModel firstModel = Select.from(TestModel.class).executeForFirst();
+            TestModel firstModel = Select.from(TestModel.class).whereJSONObject("jsonObject","SOMETHING","HERE!").executeForFirst();
             Log.e("MainActivity","OBJECT:");
             Log.e("MainActivity",firstModel.jsonObject.toString(2));
             Log.e("MainActivity","Array:");
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             firstModel.jsonArray.put(999);
             firstModel.update();
 
-            firstModel = Select.from(TestModel.class).executeForFirst();
+            firstModel = Select.from(TestModel.class).whereJSONArray("jsonArray",true).executeForFirst();
             Log.e("MainActivity","[2]OBJECT:");
             Log.e("MainActivity",firstModel.jsonObject.toString(2));
             Log.e("MainActivity","[2]Array:");

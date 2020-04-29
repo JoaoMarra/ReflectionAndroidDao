@@ -20,6 +20,6 @@ public class QueryNodeRaw extends QueryNode {
 
     @Override
     public String toString() {
-        return " "+query;
+        return " ("+query+")";
     }
 }

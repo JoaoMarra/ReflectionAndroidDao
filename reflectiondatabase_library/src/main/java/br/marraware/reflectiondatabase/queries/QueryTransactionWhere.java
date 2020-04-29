@@ -96,6 +96,16 @@ public abstract class QueryTransactionWhere<T extends DaoModel> extends QueryTra
         return this;
     }
 
+    public QueryTransactionWhere<T> whereJSONObject(String column, String key, Object value) throws ColumnNotFoundException {
+        type.whereJSONObject(modelClass, column, key, value);
+        return this;
+    }
+
+    public QueryTransactionWhere<T> whereJSONArray(String column, Object value) throws ColumnNotFoundException {
+        type.whereJSONArray(modelClass, column, value);
+        return this;
+    }
+
     public QueryTransactionWhere<T> setConflictType(int conflictType) {
         type.setConflictType(conflictType);
         return this;
