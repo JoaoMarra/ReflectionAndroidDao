@@ -44,6 +44,8 @@ public class RawQueryTransaction<T extends DaoModel> extends QueryTransaction {
                 e.printStackTrace();
             }
         }
+        if(cursor != null && !cursor.isClosed())
+            cursor.close();
         if(models != null && models.size() == 0)
             models = null;
 

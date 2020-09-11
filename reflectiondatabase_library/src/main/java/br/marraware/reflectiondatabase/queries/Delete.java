@@ -35,13 +35,14 @@ public class Delete extends QueryType {
 
     @Override
     public <T extends DaoModel> Cursor execute(Class<T> modelClass, String orderBy, int limit, int offset) throws QueryException {
+        Cursor cursor = null;
         try {
             SQLiteDatabase db = ReflectionDatabaseManager.db();
 
             String where = whereString();
             String rawQuery = "select * from " + DaoModel.tableName(modelClass) +
                     (where != null && where.length() > 0 ? " where" + where : "");
-            Cursor cursor = db.rawQuery(rawQuery, null);
+            cursor = db.rawQuery(rawQuery, null);
 
             Constructor<T> constructor = modelClass.getConstructor();
             T model = constructor.newInstance();
@@ -106,6 +107,9 @@ public class Delete extends QueryType {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+
+        if(cursor != null && !cursor.isClosed())
+            cursor.close();
 
         return null;
     }

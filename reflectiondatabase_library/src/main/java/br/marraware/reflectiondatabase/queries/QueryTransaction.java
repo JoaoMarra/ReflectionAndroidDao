@@ -87,6 +87,8 @@ public abstract class QueryTransaction<T extends DaoModel> {
         if(cursor != null)
             models = abstractPostExecute(cursor);
 
+        if(cursor != null && !cursor.isClosed())
+            cursor.close();
         if(models != null)
             postExecute(models);
 

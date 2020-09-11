@@ -428,7 +428,11 @@ public abstract class DaoModel {
     public static int rowCount(Class<? extends DaoModel> modelClass) {
         SQLiteDatabase db = ReflectionDatabaseManager.db();
         Cursor cursor = db.rawQuery("select * from "+tableName(modelClass), null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+
+        if(cursor != null && !cursor.isClosed())
+            cursor.close();
+        return count;
     }
 
     protected int insertConflictAlgorithm() {
