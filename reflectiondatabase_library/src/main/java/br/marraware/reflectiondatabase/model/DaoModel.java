@@ -88,7 +88,7 @@ public abstract class DaoModel {
         return REFLECTION_DAO_ID;
     }
 
-    private void setDefaultIdentifier(long id) {
+    public void setDefaultIdentifier(long id) {
         if(identifierColumn().compareTo(DEFAULT_ID_COLUMN_NAME) == 0)
             REFLECTION_DAO_ID = id;
     }
