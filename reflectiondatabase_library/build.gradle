@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = 'br.marraware.reflectiondatabase'
-    compileSdk 23
+    compileSdk 31
 
     defaultConfig {
-        minSdk 11
-        targetSdk 23
+        minSdk 16
+        targetSdk 31
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    api fileTree(dir: 'libs', include: ['*.jar'])
 }
 afterEvaluate {
     publishing {
@@ -40,7 +40,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'br.marraware'
-                artifactId = 'reflectiondatabase'
+                artifactId = 'ReflectAndroidDao'
                 version = '4.4'
             }
         }

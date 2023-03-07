@@ -1,1 +1,17 @@
-include ':app', ':reflectiondatabase_library'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "ReflectAndroidDao"
+include ':app'
+include ':reflectiondatabase_library'

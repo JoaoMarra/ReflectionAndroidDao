@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ReflectAndroidDao.iml" filepath="$PROJECT_DIR$/.idea/modules/ReflectAndroidDao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ReflectAndroidDao.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.iml" filepath="$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.main.iml" filepath="$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/reflectiondatabase_library/ReflectAndroidDao.reflectiondatabase_library.unitTest.iml" />
+    </modules>
+  </component>
+</project>
