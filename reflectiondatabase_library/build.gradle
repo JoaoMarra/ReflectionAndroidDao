@@ -1,24 +1,32 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: "com.jfrog.bintray"
-
-// This is the library version used when deploying the artifact
-version = "4.3"
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
+    namespace = 'br.marraware.reflectiondatabase'
+    compileSdk 23
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 23
-        versionCode 16
-        versionName version
+        minSdk 11
+        targetSdk 23
+
+        consumerProguardFiles "consumer-rules.pro"
     }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
         }
     }
 }
@@ -26,83 +34,15 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
-
-def siteUrl = 'https://github.com/JoaoMarra/ReflectionAndroidDao'      // Homepage URL of the library
-def gitUrl = 'https://github.com/JoaoMarra/ReflectionAndroidDao.git'   // Git repository URL
-group = "br.marraware"                                          // Maven Group ID for the artifact
-
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-
-                // Add your description here
-                name 'br.marraware.reflectiondatabase'
-                description = 'https://github.com/JoaoMarra/ReflectionAndroidDao'
-                url siteUrl
-
-                // Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'joaomarra'
-                        name 'João Gabriel Silva Marra'
-                        email 'silvamarraster@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'br.marraware'
+                artifactId = 'reflectiondatabase'
+                version = '4.4'
             }
         }
-    }
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-Properties properties = new Properties()
-File propFile = "${System.properties['user.home']}${File.separator}.gradle${File.separator}bintray.properties" as File
-properties.load(propFile.newDataInputStream())
-
-// https://github.com/bintray/gradle-bintray-plugin
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-    pkg {
-        repo = "ReflectionAndroidDao"
-        // it is the name that appears in bintray when logged
-        name = "br.marraware.reflectiondatabase"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
     }
 }
